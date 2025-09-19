@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Blogs\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -20,6 +21,8 @@ class BlogsTable
         return $table
             ->columns([
                 ImageColumn::make('featured_image')
+                    ->disk('s3')
+                    ->visibility('public')
                     ->square()
                     ->size(60),
                 TextColumn::make('title')
@@ -68,6 +71,7 @@ class BlogsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

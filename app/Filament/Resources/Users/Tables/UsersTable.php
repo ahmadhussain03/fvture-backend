@@ -2,11 +2,9 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -18,64 +16,63 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Name')
                     ->searchable()
-                    ->sortable()
-                    ->weight('bold'),
+                    ->sortable(),
+                
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Email')
                     ->searchable()
-                    ->sortable()
-                    ->copyable(),
+                    ->sortable(),
+                
                 TextColumn::make('user_type')
+                    ->label('Type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'admin' => 'success',
-                        'app' => 'info',
+                        'app' => 'gray',
                         default => 'gray',
-                    })
-                    ->searchable()
-                    ->sortable(),
+                    }),
+                
                 TextColumn::make('roles.name')
+                    ->label('Roles')
                     ->badge()
-                    ->separator(',')
-                    ->searchable(),
-                IconColumn::make('email_verified_at')
+                    ->color('info')
+                    ->separator(', '),
+                
+                TextColumn::make('email_verified_at')
                     ->label('Verified')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
-                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
+                    ->toggleable(),
+                
+                TextColumn::make('created_at')
+                    ->label('Created At')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('user_type')
+                    ->label('User Type')
                     ->options([
                         'admin' => 'Admin',
                         'app' => 'App User',
-                    ])
-                    ->multiple(),
+                    ]),
+                
                 SelectFilter::make('roles')
+                    ->label('Role')
                     ->relationship('roles', 'name')
-                    ->multiple()
-                    ->preload(),
+                    ->multiple(),
             ])
-            ->recordActions([
+            ->actions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+            ->bulkActions([
+                // Add bulk actions if needed
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('name');
     }
 }

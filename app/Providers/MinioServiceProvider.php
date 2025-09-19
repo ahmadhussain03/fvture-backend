@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Storage;
+use League\Flysystem\Filesystem;
+use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
+use Aws\S3\S3Client;
 
 class MinioServiceProvider extends ServiceProvider
 {
@@ -19,6 +23,7 @@ class MinioServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // The S3 driver is already compatible with Minio
+        // We just need to ensure proper configuration
     }
 }

@@ -7,7 +7,7 @@ use App\Filament\Resources\Roles\Pages\EditRole;
 use App\Filament\Resources\Roles\Pages\ListRoles;
 use App\Filament\Resources\Roles\Schemas\RoleForm;
 use App\Filament\Resources\Roles\Tables\RolesTable;
-use App\Models\Role;
+use Spatie\Permission\Models\Role;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,7 +18,7 @@ class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
     {
@@ -48,11 +48,31 @@ class RoleResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Users & Roles';
+        return 'User Management';
     }
 
     public static function getNavigationSort(): ?int
     {
-        return 1;
+        return 2;
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('role.view_any') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('role.create') ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->can('role.update') ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->can('role.delete') ?? false;
     }
 }

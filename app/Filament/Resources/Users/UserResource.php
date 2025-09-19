@@ -48,11 +48,31 @@ class UserResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Users & Roles';
+        return 'User Management';
     }
 
     public static function getNavigationSort(): ?int
     {
-        return 3;
+        return 1;
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('user.view_any') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('user.create') ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->can('user.update') ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->can('user.delete') ?? false;
     }
 }

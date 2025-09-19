@@ -15,11 +15,23 @@ class AdminOnlyMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Skip this middleware for login and logout routes
+        if ($request->routeIs('filament.admin.auth.*')) {
+            return $next($request);
+        }
+
         if (auth()->check() && auth()->user()->isAdmin()) {
             return $next($request);
         }
 
-        return redirect()->route('filament.admin.auth.login')
-            ->with('error', 'Access denied. Admin privileges required.');
+        // If user is logged in but not admin, logout and redirect
+        if (auth()->check()) {
+            auth()->logout();
+            return redirect()->route('filament.admin.auth.login')
+                ->with('error', 'Access denied. Admin privileges required.');
+        }
+
+        // User is not logged in, let Filament handle the redirect
+        return $next($request);
     }
 }

@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Roles\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class RolesTable
@@ -16,39 +16,48 @@ class RolesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable()
-                    ->sortable()
-                    ->weight('bold'),
-                TextColumn::make('guard_name')
-                    ->badge()
+                    ->label('Role Name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('permissions_count')
-                    ->counts('permissions')
-                    ->label('Permissions Count')
+                
+                TextColumn::make('guard_name')
+                    ->label('Guard Name')
                     ->badge()
-                    ->color('info'),
-                TextColumn::make('users_count')
-                    ->counts('users')
-                    ->label('Users Count')
+                    ->color('gray'),
+                
+                TextColumn::make('permissions_count')
+                    ->label('Permissions')
+                    ->counts('permissions')
                     ->badge()
                     ->color('success'),
+                
+                TextColumn::make('users_count')
+                    ->label('Users')
+                    ->counts('users')
+                    ->badge()
+                    ->color('info'),
+                
                 TextColumn::make('created_at')
+                    ->label('Created At')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('guard_name')
+                    ->label('Guard Name')
+                    ->options([
+                        'web' => 'Web',
+                        'api' => 'API',
+                    ]),
             ])
-            ->recordActions([
+            ->actions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+            ->bulkActions([
+                // Add bulk actions if needed
             ])
             ->defaultSort('name');
     }

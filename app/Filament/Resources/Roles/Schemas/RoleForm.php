@@ -2,40 +2,46 @@
 
 namespace App\Filament\Resources\Roles\Schemas;
 
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Schemas\Schema;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class RoleForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->components([
+            ->schema([
                 Section::make('Role Information')
                     ->schema([
-                        TextInput::make('name')
-                            ->required()
-                            ->unique(Role::class, 'name', ignoreRecord: true)
-                            ->maxLength(255),
-                        TextInput::make('guard_name')
-                            ->default('web')
-                            ->required()
-                            ->maxLength(255),
-                    ])
-                    ->columns(2),
-
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Role Name')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->unique(ignoreRecord: true),
+                                
+                                TextInput::make('guard_name')
+                                    ->label('Guard Name')
+                                    ->default('web')
+                                    ->required()
+                                    ->maxLength(255),
+                            ]),
+                    ]),
+                
                 Section::make('Permissions')
                     ->schema([
-                        Select::make('permissions')
-                            ->multiple()
+                        CheckboxList::make('permissions')
+                            ->label('Select Permissions')
                             ->relationship('permissions', 'name')
-                            ->preload()
+                            ->options(Permission::all()->pluck('name', 'id'))
+                            ->columns(2)
                             ->searchable()
-                            ->columnSpanFull(),
+                            ->bulkToggleable(),
                     ]),
             ]);
     }

@@ -56,6 +56,7 @@ class BlogResource extends Resource
         return 1;
     }
 
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getEloquentQuery()
@@ -66,21 +67,27 @@ class BlogResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('view-any Blog') ?? false;
+        return auth()->user()?->can('blog.view_any') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('create Blog') ?? false;
+        return auth()->user()?->can('blog.create') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->can('update Blog') ?? false;
+        return auth()->user()?->can('blog.update') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->can('delete Blog') ?? false;
+        return auth()->user()?->can('blog.delete') ?? false;
     }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()?->can('blog.delete') ?? false;
+    }
+
 }

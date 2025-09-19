@@ -46,8 +46,15 @@ class BlogForm
                     ->schema([
                         FileUpload::make('featured_image')
                             ->image()
+                            ->disk('s3')
                             ->directory('blog-images')
-                            ->visibility('public'),
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+                            ->maxSize(5120) // 5MB max
+                            ->getUploadedFileNameForStorageUsing(
+                                fn (string $file): string => (string) str($file)->prepend(time() . '-')
+                            )
+                            ->moveFiles(),
                         Grid::make(2)
                             ->schema([
                                 Toggle::make('is_published')
