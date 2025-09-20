@@ -90,6 +90,9 @@ COPY --from=builder /usr/local/bin/docker-php-ext-* /usr/local/bin/
 # -----------------------------------------------------------
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
+# Copy custom PHP configuration for larger file uploads
+COPY ./docker/php-fpm/php.ini "$PHP_INI_DIR/conf.d/99-custom.ini"
+
 # Enable PHP-FPM status page by modifying zz-docker.conf with sed
 RUN sed -i '/\[www\]/a pm.status_path = /status' /usr/local/etc/php-fpm.d/zz-docker.conf
 # Update the variables_order to include E (for ENV)

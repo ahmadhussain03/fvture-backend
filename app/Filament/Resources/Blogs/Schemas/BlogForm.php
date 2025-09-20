@@ -104,7 +104,8 @@ class BlogForm
                             ->getUploadedFileNameForStorageUsing(
                                 fn (string $file): string => (string) str($file)->prepend(time() . '-')
                             )
-                            ->moveFiles(),
+                            ->moveFiles()
+                            ,
                         Grid::make(2)
                             ->schema([
                                 Toggle::make('is_published')

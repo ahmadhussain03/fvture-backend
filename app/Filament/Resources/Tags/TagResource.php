@@ -53,7 +53,7 @@ class TagResource extends Resource
 
     public static function getNavigationSort(): ?int
     {
-        return 3;
+        return 12;
     }
 
     public static function canViewAny(): bool

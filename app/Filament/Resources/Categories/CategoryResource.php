@@ -53,7 +53,7 @@ class CategoryResource extends Resource
 
     public static function getNavigationSort(): ?int
     {
-        return 2;
+        return 11;
     }
 
     public static function canViewAny(): bool
