@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('blogs', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('slug')->unique();
-            $table->text('content');
-            $table->text('excerpt')->nullable();
-            $table->string('featured_image')->nullable();
+            $table->string('slug')->unique()->index();
+            $table->longText('content');
+            $table->string('banner_image')->nullable();
             $table->boolean('is_published')->default(false);
             $table->timestamp('published_at')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');

@@ -3,12 +3,13 @@
 namespace App\Filament\Resources\Blogs\Schemas;
 
 use App\Models\Blog;
+use App\Models\Category;
+use App\Models\Tag;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -34,20 +35,69 @@ class BlogForm
                             ->unique(Blog::class, 'slug', ignoreRecord: true)
                             ->rules(['alpha_dash']),
                         RichEditor::make('content')
-                            ->required()
-                            ->columnSpanFull(),
-                        Textarea::make('excerpt')
-                            ->rows(3)
-                            ->columnSpanFull(),
+                            ->required(),
                     ])
-                    ->columns(2),
+                    ->columns(1)
+                    ->columnSpanFull(),
+                
+                Section::make('Categories & Tags')
+                    ->schema([
+                        Select::make('categories')
+                            ->label('Categories')
+                            ->relationship('categories', 'name')
+                            ->options(Category::active()->ordered()->pluck('name', 'id'))
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('slug')
+                                    ->maxLength(255),
+                            ])
+                            ->createOptionUsing(function (array $data): int {
+                                $category = Category::create([
+                                    'name' => $data['name'],
+                                    'slug' => $data['slug'] ?: Str::slug($data['name']),
+                                ]);
+                                
+                                return $category->getKey();
+                            }),
+                        
+                        Select::make('tags')
+                            ->label('Tags')
+                            ->relationship('tags', 'name')
+                            ->options(Tag::active()->pluck('name', 'id'))
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('slug')
+                                    ->maxLength(255),
+                            ])
+                            ->createOptionUsing(function (array $data): int {
+                                $tag = Tag::create([
+                                    'name' => $data['name'],
+                                    'slug' => $data['slug'] ?: Str::slug($data['name']),
+                                ]);
+                                
+                                return $tag->getKey();
+                            }),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
                 
                 Section::make('Media & Settings')
                     ->schema([
-                        FileUpload::make('featured_image')
+                        FileUpload::make('banner_image')
+                            ->label('Banner Image')
                             ->image()
                             ->disk('s3')
-                            ->directory('blog-images')
+                            ->directory('blog-banners')
                             ->visibility('public')
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
                             ->maxSize(5120) // 5MB max
@@ -64,18 +114,9 @@ class BlogForm
                                     ->required(fn (callable $get) => $get('is_published')),
                             ]),
                     ])
-                    ->columns(2),
+                    ->columns(1)
+                    ->columnSpanFull(),
                 
-                Section::make('Author')
-                    ->schema([
-                        Select::make('user_id')
-                            ->relationship('user', 'name')
-                            ->required()
-                            ->default(auth()->id())
-                            ->searchable()
-                            ->preload(),
-                    ])
-                    ->collapsible(),
             ]);
     }
 }

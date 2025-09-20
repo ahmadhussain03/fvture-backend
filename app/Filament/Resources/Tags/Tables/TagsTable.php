@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\Users\Tables;
+namespace App\Filament\Resources\Tags\Tables;
 
-use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
+use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
-class UsersTable
+class TagsTable
 {
     public static function configure(Table $table): Table
     {
@@ -20,16 +22,21 @@ class UsersTable
                     ->searchable()
                     ->sortable(),
                 
-                TextColumn::make('email')
-                    ->label('Email')
+                TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable()
                     ->sortable(),
                 
-                TextColumn::make('roles.name')
-                    ->label('Role')
+                TextColumn::make('blogs_count')
+                    ->label('Blogs')
+                    ->counts('blogs')
                     ->badge()
-                    ->color('info')
-                    ->separator(', '),
+                    ->color('success'),
+                
+                IconColumn::make('is_active')
+                    ->label('Active')
+                    ->boolean()
+                    ->sortable(),
                 
                 TextColumn::make('created_at')
                     ->label('Created At')
@@ -38,19 +45,21 @@ class UsersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('roles')
-                    ->label('Role')
-                    ->relationship('roles', 'name')
-                    ->multiple(),
+                SelectFilter::make('is_active')
+                    ->label('Status')
+                    ->options([
+                        true => 'Active',
+                        false => 'Inactive',
+                    ]),
             ])
             ->actions([
-                ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make()
-                    ->visible(fn ($record) => $record->name !== 'Super Admin'),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                // Add bulk actions if needed
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ])
             ->defaultSort('name');
     }

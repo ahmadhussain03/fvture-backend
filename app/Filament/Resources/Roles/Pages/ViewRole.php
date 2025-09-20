@@ -3,17 +3,17 @@
 namespace App\Filament\Resources\Roles\Pages;
 
 use App\Filament\Resources\Roles\RoleResource;
-use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Actions\EditAction;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditRole extends EditRecord
+class ViewRole extends ViewRecord
 {
     protected static string $resource = RoleResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make()
+            EditAction::make()
                 ->visible(fn () => $this->record->name !== 'Super Admin'),
         ];
     }
@@ -21,14 +21,6 @@ class EditRole extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         // Ensure guard_name is always 'web' for display
-        $data['guard_name'] = 'web';
-        
-        return $data;
-    }
-
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        // Ensure guard_name is always 'web' when saving
         $data['guard_name'] = 'web';
         
         return $data;

@@ -20,11 +20,6 @@ class RolesTable
                     ->searchable()
                     ->sortable(),
                 
-                TextColumn::make('guard_name')
-                    ->label('Guard Name')
-                    ->badge()
-                    ->color('gray'),
-                
                 TextColumn::make('permissions_count')
                     ->label('Permissions')
                     ->counts('permissions')
@@ -43,18 +38,12 @@ class RolesTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                SelectFilter::make('guard_name')
-                    ->label('Guard Name')
-                    ->options([
-                        'web' => 'Web',
-                        'api' => 'API',
-                    ]),
-            ])
             ->actions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn ($record) => $record->name !== 'Super Admin'),
+                DeleteAction::make()
+                    ->visible(fn ($record) => $record->name !== 'Super Admin'),
             ])
             ->bulkActions([
                 // Add bulk actions if needed

@@ -6,7 +6,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Schemas\Schema;
 use Spatie\Permission\Models\Role;
 
@@ -23,7 +22,8 @@ class UserForm
                                 TextInput::make('name')
                                     ->label('Full Name')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->disabled(fn ($record) => $record && $record->name === 'Super Admin'),
                                 
                                 TextInput::make('email')
                                     ->label('Email Address')
@@ -43,27 +43,33 @@ class UserForm
                                     ->dehydrated(fn ($state) => filled($state))
                                     ->dehydrateStateUsing(fn ($state) => bcrypt($state)),
                                 
-                                Select::make('user_type')
-                                    ->label('User Type')
-                                    ->options([
-                                        'admin' => 'Admin',
-                                        'app' => 'App User',
-                                    ])
-                                    ->required()
-                                    ->default('app'),
+                                TextInput::make('password_confirmation')
+                                    ->label('Confirm Password')
+                                    ->password()
+                                    ->required(fn (string $context): bool => $context === 'create')
+                                    ->minLength(8)
+                                    ->same('password')
+                                    ->dehydrated(false),
                             ]),
-                    ]),
-                
-                Section::make('Roles & Permissions')
-                    ->schema([
-                        CheckboxList::make('roles')
-                            ->label('Assign Roles')
-                            ->relationship('roles', 'name')
+                        
+                        Select::make('role_id')
+                            ->label('Assign Role')
                             ->options(Role::all()->pluck('name', 'id'))
-                            ->columns(2)
                             ->searchable()
-                            ->bulkToggleable(),
-                    ]),
+                            ->preload()
+                            ->required()
+                            ->helperText('Select a single role for this user')
+                            ->dehydrated(false)
+                            ->disabled(fn ($record) => $record && $record->name === 'Super Admin')
+                            ->afterStateUpdated(function ($state, $set, $get, $livewire) {
+                                if ($state) {
+                                    $livewire->data['roles'] = [$state];
+                                }
+                            }),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
             ]);
     }
+
 }
