@@ -35,7 +35,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - Do not change the application's dependencies without approval.
 
 ## Frontend Bundling
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
+- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `./vendor/bin/sail npm run build`, `./vendor/bin/sail npm run dev`, or `./vendor/bin/sail composer run dev`. Ask them.
 
 ## Replies
 - Be concise in your explanations - focus on what's important rather than explaining obvious details.
@@ -122,7 +122,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - Utilize static `make()` methods for consistent component initialization.
 
 ### Artisan
-- You must use the Filament specific Artisan commands to create new files or components for Filament. You can find these with the `list-artisan-commands` tool, or with `php artisan` and the `--help` option.
+- You must use the Filament specific Artisan commands to create new files or components for Filament. You can find these with the `list-artisan-commands` tool, or with `/vendor/bin/sail artisan` and the `--help` option.
 - Inspect the required options, always pass `--no-interaction`, and valid arguments for other options when applicable.
 
 ### Filament's Core Features
@@ -221,7 +221,7 @@ Forms\Components\Select::make('user_id')
 
 ## Do Things the Laravel Way
 
-- Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using the `list-artisan-commands` tool.
+- Use `./vendor/bin/sail artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using the `list-artisan-commands` tool.
 - If you're creating a generic PHP class, use `artisan make:class`.
 - Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
 
@@ -233,7 +233,7 @@ Forms\Components\Select::make('user_id')
 - Use Laravel's query builder for very complex database operations.
 
 ### Model Creation
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `list-artisan-commands` to check the available options to `php artisan make:model`.
+- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `list-artisan-commands` to check the available options to `./vendor/bin/sail artisan make:model`.
 
 ### APIs & Eloquent Resources
 - For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
@@ -257,10 +257,10 @@ Forms\Components\Select::make('user_id')
 ### Testing
 - When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
 - Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] <name>` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
+- When creating tests, make use of `./vendor/bin/sail artisan make:test [options] <name>` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
 
 ### Vite Error
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
+- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `./vendor/bin/sail npm run build` or ask the user to run `./vendor/bin/sail npm run dev` or `./vendor/bin/sail composer run dev`.
 
 
 === laravel/v12 rules ===
@@ -289,7 +289,7 @@ Forms\Components\Select::make('user_id')
 
 ## Livewire Core
 - Use the `search-docs` tool to find exact version specific documentation for how to write Livewire & Livewire tests.
-- Use the `php artisan make:livewire [Posts\\CreatePost]` artisan command to create new components
+- Use the `./vendor/bin/sail artisan make:livewire [Posts\CreatePost]` artisan command to create new components
 - State should live on the server, with the UI reflecting it.
 - All Livewire requests hit the Laravel backend, they're like regular HTTP requests. Always validate form data, and run authorization checks in Livewire actions.
 
@@ -380,7 +380,7 @@ document.addEventListener('livewire:init', function () {
 
 ## PHPUnit Core
 
-- This application uses PHPUnit for testing. All tests must be written as PHPUnit classes. Use `php artisan make:test --phpunit <name>` to create a new test.
+- This application uses PHPUnit for testing. All tests must be written as PHPUnit classes. Use `./vendor/bin/sail artisan make:test --phpunit <name>` to create a new test.
 - If you see a test using "Pest", convert it to PHPUnit.
 - Every time a test has been updated, run that singular test.
 - When the tests relating to your feature are passing, ask the user if they would like to also run the entire test suite to make sure everything is still passing.
@@ -389,7 +389,7 @@ document.addEventListener('livewire:init', function () {
 
 ### Running Tests
 - Run the minimal number of tests, using an appropriate filter, before finalizing.
-- To run all tests: `php artisan test`.
-- To run all tests in a file: `php artisan test tests/Feature/ExampleTest.php`.
-- To filter on a particular test name: `php artisan test --filter=testName` (recommended after making a change to a related file).
+- To run all tests: `./vendor/bin/sail artisan test`.
+- To run all tests in a file: `./vendor/bin/sail artisan test tests/Feature/ExampleTest.php`.
+- To filter on a particular test name: `./vendor/bin/sail artisan test --filter=testName` (recommended after making a change to a related file).
 </laravel-boost-guidelines>
