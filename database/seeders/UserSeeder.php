@@ -18,28 +18,18 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Super Admin',
-                'email' => 'superadmin@fvture.com',
-                'password' => 'password123',
-                'role' => 'super-admin',
-            ],
-            [
-                'name' => 'Admin User',
                 'email' => 'admin@fvture.com',
                 'password' => 'password123',
-                'role' => 'admin',
+                'role' => 'Super Admin',
+                'user_type' => 'admin',
             ],
             [
                 'name' => 'Editor User',
                 'email' => 'editor@fvture.com',
                 'password' => 'password123',
-                'role' => 'editor',
-            ],
-            [
-                'name' => 'Author User',
-                'email' => 'author@fvture.com',
-                'password' => 'password123',
-                'role' => 'author',
-            ],
+                'role' => 'Editor',
+                'user_type' => 'admin',
+            ]
         ];
 
         foreach ($users as $userData) {
@@ -57,6 +47,7 @@ class UserSeeder extends Seeder
                 'email' => $userData['email'],
                 'password' => Hash::make($userData['password']),
                 'email_verified_at' => now(),
+                'user_type' => $userData['user_type'],
             ]);
 
             // Assign role

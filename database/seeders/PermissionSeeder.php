@@ -49,26 +49,10 @@ class PermissionSeeder extends Seeder
         // Create Super Admin role
         $superAdminRole = Role::firstOrCreate(
             ['name' => 'Super Admin', 'guard_name' => 'web'],
-            ['name' => 'Super Admin', 'guard_name' => 'web']
         );
 
         // Give Super Admin all permissions
         $superAdminRole->givePermissionTo(Permission::all());
-
-        // Create admin user
-        $adminUser = User::firstOrCreate(
-            ['email' => 'admin@fvture.com'],
-            [
-                'name' => 'Super Admin',
-                'email' => 'admin@fvture.com',
-                'password' => Hash::make('password'),
-                'user_type' => 'admin',
-                'email_verified_at' => now(),
-            ]
-        );
-
-        // Assign Super Admin role to admin user
-        $adminUser->assignRole($superAdminRole);
 
         // Create additional roles for demonstration
         $editorRole = Role::firstOrCreate(

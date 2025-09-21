@@ -20,7 +20,7 @@ class BlogsTable
     {
         return $table
             ->columns([
-                ImageColumn::make('featured_image')
+                ImageColumn::make('banner_image')
                     ->disk('s3')
                     ->visibility('public')
                     ->square()
