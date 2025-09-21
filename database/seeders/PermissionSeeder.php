@@ -18,8 +18,9 @@ class PermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create permissions for blog operations
+        // Create permissions for all operations
         $permissions = [
+            // Blog permissions
             'blog.view_any',
             'blog.view',
             'blog.create',
@@ -27,11 +28,29 @@ class PermissionSeeder extends Seeder
             'blog.delete',
             'blog.restore',
             'blog.force_delete',
+            // DJ permissions
+            'dj.view_any',
+            'dj.view',
+            'dj.create',
+            'dj.update',
+            'dj.delete',
+            'dj.restore',
+            'dj.force_delete',
+            // Event permissions
+            'event.view_any',
+            'event.view',
+            'event.create',
+            'event.update',
+            'event.delete',
+            'event.restore',
+            'event.force_delete',
+            // User permissions
             'user.view_any',
             'user.view',
             'user.create',
             'user.update',
             'user.delete',
+            // Role permissions
             'role.view_any',
             'role.view',
             'role.create',
@@ -65,6 +84,16 @@ class PermissionSeeder extends Seeder
             'blog.create',
             'blog.update',
             'blog.delete',
+            'dj.view_any',
+            'dj.view',
+            'dj.create',
+            'dj.update',
+            'dj.delete',
+            'event.view_any',
+            'event.view',
+            'event.create',
+            'event.update',
+            'event.delete',
         ]);
 
         $viewerRole = Role::firstOrCreate(
@@ -74,6 +103,10 @@ class PermissionSeeder extends Seeder
         $viewerRole->givePermissionTo([
             'blog.view_any',
             'blog.view',
+            'dj.view_any',
+            'dj.view',
+            'event.view_any',
+            'event.view',
         ]);
     }
 }

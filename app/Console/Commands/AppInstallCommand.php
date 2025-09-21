@@ -242,7 +242,7 @@ class AppInstallCommand extends Command
         $this->info('🔐 Seeding permissions and roles...');
         
         Artisan::call('db:seed', [
-            '--class' => 'PermissionRoleSeeder',
+            '--class' => 'PermissionSeeder',
             '--force' => true
         ]);
         
