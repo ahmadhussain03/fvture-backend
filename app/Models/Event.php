@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
@@ -29,5 +30,13 @@ class Event extends Model
     public function djs(): BelongsToMany
     {
         return $this->belongsToMany(DJ::class, 'event_dj', 'event_id', 'dj_id');
+    }
+
+    /**
+     * Get the gallery items for the event
+     */
+    public function gallery(): HasMany
+    {
+        return $this->hasMany(Gallery::class);
     }
 }

@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Blogs\Schemas;
 
 use App\Models\Blog;
 use App\Models\Category;
-use App\Models\Tag;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -40,7 +39,7 @@ class BlogForm
                     ->columns(1)
                     ->columnSpanFull(),
                 
-                Section::make('Categories & Tags')
+                Section::make('Categories')
                     ->schema([
                         Select::make('categories')
                             ->label('Categories')
@@ -63,29 +62,6 @@ class BlogForm
                                 ]);
                                 
                                 return $category->getKey();
-                            }),
-                        
-                        Select::make('tags')
-                            ->label('Tags')
-                            ->relationship('tags', 'name')
-                            ->options(Tag::active()->pluck('name', 'id'))
-                            ->multiple()
-                            ->searchable()
-                            ->preload()
-                            ->createOptionForm([
-                                TextInput::make('name')
-                                    ->required()
-                                    ->maxLength(255),
-                                TextInput::make('slug')
-                                    ->maxLength(255),
-                            ])
-                            ->createOptionUsing(function (array $data): int {
-                                $tag = Tag::create([
-                                    'name' => $data['name'],
-                                    'slug' => $data['slug'] ?: Str::slug($data['name']),
-                                ]);
-                                
-                                return $tag->getKey();
                             }),
                     ])
                     ->columns(1)

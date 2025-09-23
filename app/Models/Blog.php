@@ -47,13 +47,6 @@ class Blog extends Model
         return $this->belongsToMany(Category::class);
     }
 
-    /**
-     * Get the tags for the blog
-     */
-    public function tags(): BelongsToMany
-    {
-        return $this->belongsToMany(Tag::class);
-    }
 
     /**
      * Boot the model
@@ -104,13 +97,4 @@ class Blog extends Model
         });
     }
 
-    /**
-     * Scope for blogs by tag
-     */
-    public function scopeByTag($query, $tagId)
-    {
-        return $query->whereHas('tags', function ($q) use ($tagId) {
-            $q->where('tags.id', $tagId);
-        });
-    }
 }

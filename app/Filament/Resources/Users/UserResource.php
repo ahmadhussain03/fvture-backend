@@ -21,6 +21,8 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
+    protected static ?string $navigationLabel = 'Admin Users';
+
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);
@@ -58,23 +60,29 @@ class UserResource extends Resource
         return 1;
     }
 
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('user_type', 'admin');
+    }
+
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('user.view_any') ?? false;
+        return auth()->user()?->can('admin_user.view_any') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('user.create') ?? false;
+        return auth()->user()?->can('admin_user.create') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->can('user.update') ?? false;
+        return auth()->user()?->can('admin_user.update') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->can('user.delete') ?? false;
+        return auth()->user()?->can('admin_user.delete') ?? false;
     }
 }

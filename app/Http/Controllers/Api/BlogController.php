@@ -24,7 +24,6 @@ class BlogController
      * @queryParam per_page integer Number of items per page (maximum 50). Example: 15
      * @queryParam search string Search term to filter blogs by title and content. Example: music
      * @queryParam category_id integer Filter blogs by specific category ID. Example: 1
-     * @queryParam tag_id integer Filter blogs by specific tag ID. Example: 2
      * @queryParam published boolean Filter by published status. Defaults to true for public API. Example: true
      * 
      * @response {
@@ -50,13 +49,6 @@ class BlogController
      *           "id": 1,
      *           "name": "Technology",
      *           "slug": "technology"
-     *         }
-     *       ],
-     *       "tags": [
-     *         {
-     *           "id": 1,
-     *           "name": "Laravel",
-     *           "slug": "laravel"
      *         }
      *       ],
      *       "created_at": "2024-01-01T00:00:00.000000Z",
@@ -106,7 +98,7 @@ class BlogController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Blog::with(['user', 'categories', 'tags']);
+        $query = Blog::with(['user', 'categories']);
 
         // Apply filters
         if ($request->has('search') && $request->search) {
@@ -120,9 +112,6 @@ class BlogController
             $query->byCategory($request->category_id);
         }
 
-        if ($request->has('tag_id') && $request->tag_id) {
-            $query->byTag($request->tag_id);
-        }
 
         if ($request->has('published') && $request->published !== null) {
             if ($request->published) {

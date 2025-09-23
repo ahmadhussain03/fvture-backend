@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class BlogResource extends JsonResource
+class GalleryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,13 +17,13 @@ class BlogResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'slug' => $this->slug,
-            'content' => $this->content,
-            'banner_image' => $this->banner_image ? config('filesystems.disks.s3.url') . '/' . $this->banner_image : null,
-            'is_published' => $this->is_published,
-            'published_at' => $this->published_at,
-            'author' => new UserResource($this->whenLoaded('user')),
-            'categories' => $this->whenLoaded('categories'),
+            'description' => $this->description,
+            'file_url' => $this->file_url,
+            'type' => $this->type,
+            'file_size' => $this->file_size,
+            'formatted_file_size' => $this->formatted_file_size,
+            'mime_type' => $this->mime_type,
+            'event' => new EventResource($this->whenLoaded('event')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -74,6 +74,12 @@ curl -X POST {{ config('app.url') }}/api/auth/logout \
 ### Public Content
 - `GET /api/blogs` - Get paginated blogs with filtering options
 - `GET /api/events` - Get events with DJs and filtering options
+- `GET /api/events/{id}/album` - Get event album (gallery items for specific event)
+- `GET /api/announcements` - Get announcements with filtering options
+- `GET /api/gallery` - Get gallery items (images/videos) with filtering options
+- `GET /api/notifications` - Get user notifications
+- `POST /api/notifications/{id}/read` - Mark notification as read
+- `POST /api/notifications/read-all` - Mark all notifications as read
 
 ## 🔍 Query Parameters
 
@@ -82,7 +88,6 @@ curl -X POST {{ config('app.url') }}/api/auth/logout \
 - `per_page` - Items per page, max 50 (default: 15)
 - `search` - Search in title and content
 - `category_id` - Filter by category ID
-- `tag_id` - Filter by tag ID
 - `published` - Filter by published status (true/false)
 
 ### Events Endpoint
@@ -92,12 +97,36 @@ curl -X POST {{ config('app.url') }}/api/auth/logout \
 - `upcoming` - Filter for upcoming events only (true/false)
 - `dj_id` - Filter by specific DJ ID
 
+### Event Album Endpoint
+- `page` - Page number (default: 1)
+- `per_page` - Items per page, max 50 (default: 15)
+- `type` - Filter by file type (image or video)
+
+### Announcements Endpoint
+- `page` - Page number (default: 1)
+- `per_page` - Items per page, max 50 (default: 15)
+- `search` - Search in title and description
+
+### Gallery Endpoint
+- `page` - Page number (default: 1)
+- `per_page` - Items per page, max 50 (default: 15)
+- `search` - Search in title and description
+- `type` - Filter by file type (image or video)
+- `event_id` - Filter by specific event ID
+
+### Notifications Endpoint
+- `page` - Page number (default: 1)
+- `per_page` - Items per page, max 50 (default: 15)
+- `unread_only` - Filter for unread notifications only (true/false)
+
 ## 📸 Image Handling
 
 All images are stored on AWS S3 and returned as full URLs:
 - Blog banner images: `banner_image` field
 - Event banner images: `banner_image` field
 - DJ profile images: `image` field
+- Announcement images: `image` field
+- Gallery images/videos: `file_url` field
 
 ## 🔒 Rate Limiting
 

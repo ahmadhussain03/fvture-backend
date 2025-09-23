@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\Api\EventResource;
+use App\Http\Resources\Api\GalleryResource;
 use App\Models\Event;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -128,5 +129,117 @@ class EventController
                        ->paginate($perPage);
 
         return EventResource::collection($events)->response();
+    }
+
+    /**
+     * Get event album
+     * 
+     * Retrieve all gallery items (images and videos) attached to a specific event.
+     * This endpoint provides the complete album for an event.
+     * 
+     * **Authentication Required**: This endpoint requires a valid Sanctum token. Include the token in the Authorization header as `Bearer {token}`.
+     * 
+     * @param Request $request
+     * @param int $id Event ID
+     * @return JsonResponse
+     * 
+     * @queryParam page integer The page number for pagination. Example: 1
+     * @queryParam per_page integer Number of items per page (maximum 50). Example: 15
+     * @queryParam type string Filter by file type (image or video). Example: image
+     * 
+     * @response {
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "title": "Concert Highlights",
+     *       "description": "Amazing moments from the concert",
+     *       "file_url": "https://s3.amazonaws.com/bucket/gallery/concert-highlights.jpg",
+     *       "type": "image",
+     *       "file_size": "2048576",
+     *       "formatted_file_size": "2.0 MB",
+     *       "mime_type": "image/jpeg",
+     *       "event": {
+     *         "id": 1,
+     *         "name": "Summer Music Festival",
+     *         "description": "A great music festival...",
+     *         "event_date_time": "2024-06-15T18:00:00.000000Z",
+     *         "video": "https://youtube.com/watch?v=example",
+     *         "banner_image": "https://s3.amazonaws.com/bucket/event-banners/festival.jpg",
+     *         "other_information": "Additional event details...",
+     *         "djs": [],
+     *         "created_at": "2024-01-01T00:00:00.000000Z",
+     *         "updated_at": "2024-01-01T00:00:00.000000Z"
+     *       },
+     *       "created_at": "2024-01-01T00:00:00.000000Z",
+     *       "updated_at": "2024-01-01T00:00:00.000000Z"
+     *     }
+     *   ],
+     *   "links": {
+     *     "first": "http://localhost/api/events/1/album?page=1",
+     *     "last": "http://localhost/api/events/1/album?page=3",
+     *     "prev": null,
+     *     "next": "http://localhost/api/events/1/album?page=2"
+     *   },
+     *   "meta": {
+     *     "current_page": 1,
+     *     "from": 1,
+     *     "last_page": 3,
+     *     "path": "http://localhost/api/events/1/album",
+     *     "per_page": 15,
+     *     "to": 15,
+     *     "total": 45
+     *   }
+     * }
+     * 
+     * @response 404 {
+     *   "message": "Event not found"
+     * }
+     * 
+     * @response 401 {
+     *   "message": "Unauthenticated."
+     * }
+     * 
+     * @response 403 {
+     *   "message": "This action is unauthorized."
+     * }
+     * 
+     * @response 422 {
+     *   "message": "The given data was invalid.",
+     *   "errors": {
+     *     "per_page": ["The per page must not be greater than 50."],
+     *     "page": ["The page must be at least 1."],
+     *     "type": ["The type must be either image or video."]
+     *   }
+     * }
+     * 
+     * @response 429 {
+     *   "message": "Too Many Attempts."
+     * }
+     * 
+     * @response 500 {
+     *   "message": "Server Error"
+     * }
+     */
+    public function album(Request $request, int $id): JsonResponse
+    {
+        $event = Event::find($id);
+
+        if (!$event) {
+            return response()->json(['message' => 'Event not found'], 404);
+        }
+
+        $query = $event->gallery();
+
+        // Apply filters
+        if ($request->has('type') && $request->type) {
+            $query->where('type', $request->type);
+        }
+
+        // Pagination
+        $perPage = min($request->get('per_page', 15), 50);
+        $gallery = $query->orderBy('created_at', 'desc')
+                        ->paginate($perPage);
+
+        return GalleryResource::collection($gallery)->response();
     }
 }

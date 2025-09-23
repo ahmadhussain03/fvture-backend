@@ -23,7 +23,7 @@ class AuthController
      * @param RegisterRequest $request
      * @return JsonResponse
      * 
-     * @response 201 {
+     * @response {
      *   "data": {
      *     "id": 1,
      *     "name": "John Doe",
@@ -79,7 +79,7 @@ class AuthController
      * @param LoginRequest $request
      * @return JsonResponse
      * 
-     * @response 200 {
+     * @response {
      *   "data": {
      *     "id": 1,
      *     "name": "John Doe",
@@ -137,7 +137,7 @@ class AuthController
      * @param Request $request
      * @return JsonResponse
      * 
-     * @response 200 {
+     * @response {
      *   "message": "Successfully logged out"
      * }
      * 
