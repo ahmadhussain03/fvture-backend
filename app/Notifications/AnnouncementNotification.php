@@ -39,7 +39,7 @@ class AnnouncementNotification extends Notification
             'announcement_id' => $this->announcement->id,
             'title' => $this->announcement->title,
             'message' => strip_tags($this->announcement->description),
-            'image' => $this->announcement->image,
+            'image' => $this->announcement->image ? \Storage::disk('s3')->url($this->announcement->image) : null,
         ];
     }
 
@@ -54,7 +54,7 @@ class AnnouncementNotification extends Notification
             'announcement_id' => $this->announcement->id,
             'title' => $this->announcement->title,
             'message' => strip_tags($this->announcement->description),
-            'image' => $this->announcement->image,
+            'image' => $this->announcement->image ? \Storage::disk('s3')->url($this->announcement->image) : null,
         ];
     }
 }
