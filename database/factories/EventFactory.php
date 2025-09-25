@@ -16,10 +16,14 @@ class EventFactory extends Factory
      */
     public function definition(): array
     {
+        $startDate = fake()->dateTimeBetween('now', '+1 year');
+        $endDate = fake()->dateTimeBetween($startDate, '+3 days');
+        
         return [
             'name' => fake()->sentence(3),
             'description' => fake()->paragraph(),
-            'event_date_time' => fake()->dateTimeBetween('now', '+1 year'),
+            'from_date' => $startDate,
+            'to_date' => $endDate,
             'video' => fake()->optional()->url(),
             'banner_image' => fake()->optional()->url(),
             'other_information' => fake()->optional()->paragraph(),

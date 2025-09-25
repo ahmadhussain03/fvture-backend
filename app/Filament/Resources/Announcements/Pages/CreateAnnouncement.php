@@ -41,4 +41,9 @@ class CreateAnnouncement extends CreateRecord
             $user->notify(new AnnouncementNotification($announcement));
         }
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

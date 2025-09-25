@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\ArtistController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\EventController;
@@ -36,6 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
   // Private routes
   Route::get('blogs', [BlogController::class, 'index']);
   Route::get('events', [EventController::class, 'index']);
+  Route::get('artists', [ArtistController::class, 'index']);
+  Route::get('artists/{id}', [ArtistController::class, 'show']);
   Route::get('announcements', [AnnouncementController::class, 'index']);
   Route::get('gallery', [GalleryController::class, 'index']);
   

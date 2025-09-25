@@ -2,7 +2,8 @@
 
 namespace App\Filament\Resources\Events\Schemas;
 
-use App\Models\DJ;
+use App\Models\Artist;
+use App\Rules\NoOverlappingEvents;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -16,7 +17,7 @@ use Illuminate\Support\Str;
 
 class EventForm
 {
-    public static function configure(Schema $schema): Schema
+    public static function configure(Schema $schema, $excludeEventId = null): Schema
     {
         return $schema
             ->components([
@@ -38,13 +39,46 @@ class EventForm
                                                         $operation === 'create' ? $set('slug', Str::slug($state)) : null
                                                     ),
                                                 
-                                                DateTimePicker::make('event_date_time')
-                                                    ->label('Event Date & Time')
+                                                DateTimePicker::make('from_date')
+                                                    ->label('Event Start Date & Time')
                                                     ->required()
                                                     ->native(false)
                                                     ->displayFormat('d/m/Y H:i')
                                                     ->seconds(false)
-                                                    ->minutesStep(15),
+                                                    ->minutesStep(15)
+                                                    ->rules([
+                                                        'after_or_equal:now',
+                                                        function ($get) use ($excludeEventId) {
+                                                            return function (string $attribute, $value, \Closure $fail) use ($get, $excludeEventId) {
+                                                                $toDate = $get('to_date');
+                                                                if ($value && $toDate) {
+                                                                    $rule = new NoOverlappingEvents($value, $toDate, $excludeEventId);
+                                                                    $rule->validate($attribute, $value, $fail);
+                                                                }
+                                                            };
+                                                        },
+                                                    ]),
+                                                
+                                                DateTimePicker::make('to_date')
+                                                    ->label('Event End Date & Time')
+                                                    ->required()
+                                                    ->native(false)
+                                                    ->displayFormat('d/m/Y H:i')
+                                                    ->seconds(false)
+                                                    ->minutesStep(15)
+                                                    ->after('from_date')
+                                                    ->rules([
+                                                        'after:from_date',
+                                                        function ($get) use ($excludeEventId) {
+                                                            return function (string $attribute, $value, \Closure $fail) use ($get, $excludeEventId) {
+                                                                $fromDate = $get('from_date');
+                                                                if ($value && $fromDate) {
+                                                                    $rule = new NoOverlappingEvents($fromDate, $value, $excludeEventId);
+                                                                    $rule->validate($attribute, $value, $fail);
+                                                                }
+                                                            };
+                                                        },
+                                                    ]),
                                             ]),
                                         
                                         Textarea::make('description')
@@ -57,30 +91,30 @@ class EventForm
                                     ->columnSpanFull(),
                             ]),
                         
-                        Tabs\Tab::make('DJ Lineup')
+                        Tabs\Tab::make('Artist Lineup')
                             ->icon('heroicon-o-microphone')
                             ->schema([
-                                Section::make('DJ Lineup')
-                                    ->description('Select DJs performing at this event or create new ones')
+                                Section::make('Artist Lineup')
+                                    ->description('Select artists performing at this event or create new ones')
                                     ->schema([
-                                        Select::make('djs')
-                                            ->label('Select DJs')
-                                            ->relationship('djs', 'name')
-                                            ->options(DJ::orderBy('name')->pluck('name', 'id'))
+                                        Select::make('artists')
+                                            ->label('Select Artists')
+                                            ->relationship('artists', 'name')
+                                            ->options(Artist::orderBy('name')->pluck('name', 'id'))
                                             ->multiple()
                                             ->searchable()
                                             ->preload()
                                             ->createOptionForm([
                                                 TextInput::make('name')
-                                                    ->label('DJ Name')
+                                                    ->label('Artist Name')
                                                     ->required()
                                                     ->maxLength(255),
                                                 
                                                 FileUpload::make('image')
-                                                    ->label('DJ Image')
+                                                    ->label('Artist Image')
                                                     ->image()
                                                     ->disk('s3')
-                                                    ->directory('djs/images')
+                                                    ->directory('artists/images')
                                                     ->visibility('public')
                                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
                                                     ->maxSize(5120)
@@ -94,13 +128,13 @@ class EventForm
                                                     ->rows(3),
                                             ])
                                             ->createOptionUsing(function (array $data): int {
-                                                $dj = DJ::create([
+                                                $artist = Artist::create([
                                                     'name' => $data['name'],
                                                     'image' => $data['image'] ?? null,
                                                     'description' => $data['description'] ?? null,
                                                 ]);
                                                 
-                                                return $dj->getKey();
+                                                return $artist->getKey();
                                             })
                                             ->columnSpanFull(),
                                     ])

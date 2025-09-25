@@ -33,4 +33,9 @@ class CreateAppUser extends CreateRecord
     {
         return 'full';
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

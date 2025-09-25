@@ -14,7 +14,8 @@ class Event extends Model
     protected $fillable = [
         'name',
         'description',
-        'event_date_time',
+        'from_date',
+        'to_date',
         'video',
         'banner_image',
         'other_information',
@@ -23,13 +24,14 @@ class Event extends Model
     protected function casts(): array
     {
         return [
-            'event_date_time' => 'datetime',
+            'from_date' => 'datetime',
+            'to_date' => 'datetime',
         ];
     }
 
-    public function djs(): BelongsToMany
+    public function artists(): BelongsToMany
     {
-        return $this->belongsToMany(DJ::class, 'event_dj', 'event_id', 'dj_id');
+        return $this->belongsToMany(Artist::class, 'event_artist', 'event_id', 'artist_id');
     }
 
     /**

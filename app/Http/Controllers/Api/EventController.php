@@ -11,10 +11,10 @@ use Illuminate\Http\Request;
 class EventController
 {
     /**
-     * Get events with DJs
+     * Get events with Artists
      * 
-     * Retrieve a paginated list of events with their associated DJs. This endpoint supports various filtering options
-     * to help you find specific events based on date, DJ, or search terms.
+     * Retrieve a paginated list of events with their associated artists. This endpoint supports various filtering options
+     * to help you find specific events based on date, artist, or search terms.
      * 
      * **Authentication Required**: This endpoint requires a valid Sanctum token. Include the token in the Authorization header as `Bearer {token}`.
      * 
@@ -24,25 +24,26 @@ class EventController
      * @queryParam page integer The page number for pagination. Example: 1
      * @queryParam per_page integer Number of items per page (maximum 50). Example: 15
      * @queryParam search string Search term to filter events by name and description. Example: music festival
-     * @queryParam upcoming boolean Filter for upcoming events only (events after current date). Example: true
-     * @queryParam dj_id integer Filter events by specific DJ ID. Example: 1
+     * @queryParam upcoming boolean Filter for upcoming events only (events starting after current date). Example: true
+     * @queryParam artist_id integer Filter events by specific artist ID. Example: 1
      * 
      * @response 200 {
      *   "data": [
      *     {
      *       "id": 1,
      *       "name": "Summer Music Festival",
-     *       "description": "A great music festival featuring top DJs from around the world...",
-     *       "event_date_time": "2024-06-15T18:00:00.000000Z",
+     *       "description": "A great music festival featuring top artists from around the world...",
+     *       "from_date": "2024-06-15T18:00:00.000000Z",
+     *       "to_date": "2024-06-16T23:59:00.000000Z",
      *       "video": "https://youtube.com/watch?v=example",
      *       "banner_image": "https://s3.amazonaws.com/bucket/event-banners/festival.jpg",
      *       "other_information": "Additional event details including parking, food vendors, and more...",
-     *       "djs": [
+     *       "artists": [
      *         {
      *           "id": 1,
-     *           "name": "DJ John",
-     *           "description": "Professional DJ with 10 years experience in electronic music",
-     *           "image": "https://s3.amazonaws.com/bucket/djs/images/dj-john.jpg",
+     *           "name": "Artist John",
+     *           "description": "Professional artist with 10 years experience in electronic music",
+     *           "image": "https://s3.amazonaws.com/bucket/artists/images/artist-john.jpg",
      *           "created_at": "2024-01-01T00:00:00.000000Z",
      *           "updated_at": "2024-01-01T00:00:00.000000Z"
      *         },
@@ -103,7 +104,7 @@ class EventController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Event::with(['djs']);
+        $query = Event::with(['artists']);
 
         // Apply filters
         if ($request->has('search') && $request->search) {
@@ -114,18 +115,18 @@ class EventController
         }
 
         if ($request->has('upcoming') && $request->upcoming) {
-            $query->where('event_date_time', '>', now());
+            $query->where('from_date', '>', now());
         }
 
-        if ($request->has('dj_id') && $request->dj_id) {
-            $query->whereHas('djs', function ($q) use ($request) {
-                $q->where('djs.id', $request->dj_id);
+        if ($request->has('artist_id') && $request->artist_id) {
+            $query->whereHas('artists', function ($q) use ($request) {
+                $q->where('artists.id', $request->artist_id);
             });
         }
 
         // Pagination
         $perPage = min($request->get('per_page', 15), 50);
-        $events = $query->orderBy('event_date_time', 'asc')
+        $events = $query->orderBy('from_date', 'asc')
                        ->paginate($perPage);
 
         return EventResource::collection($events)->response();

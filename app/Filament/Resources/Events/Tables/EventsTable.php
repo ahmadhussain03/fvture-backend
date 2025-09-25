@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Events\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -22,15 +23,20 @@ class EventsTable
                     ->searchable()
                     ->sortable(),
                 
-                TextColumn::make('event_date_time')
-                    ->label('Date & Time')
+                TextColumn::make('from_date')
+                    ->label('Start Date & Time')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 
-                TextColumn::make('djs.name')
-                    ->label('DJ Lineup')
+                TextColumn::make('to_date')
+                    ->label('End Date & Time')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
+                
+                TextColumn::make('artists.name')
+                    ->label('Artist Lineup')
                     ->formatStateUsing(function ($record): string {
-                        return $record->djs->pluck('name')->join(', ');
+                        return $record->artists->pluck('name')->join(', ');
                     })
                     ->limit(50)
                     ->badge()
@@ -76,21 +82,22 @@ class EventsTable
             ->filters([
                 Filter::make('upcoming')
                     ->label('Upcoming Events')
-                    ->query(fn (Builder $query): Builder => $query->where('event_date_time', '>=', now())),
+                    ->query(fn (Builder $query): Builder => $query->where('from_date', '>=', now())),
                 
                 Filter::make('past')
                     ->label('Past Events')
-                    ->query(fn (Builder $query): Builder => $query->where('event_date_time', '<', now())),
+                    ->query(fn (Builder $query): Builder => $query->where('to_date', '<', now())),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('event_date_time', 'desc');
+            ->defaultSort('from_date', 'desc');
     }
 }

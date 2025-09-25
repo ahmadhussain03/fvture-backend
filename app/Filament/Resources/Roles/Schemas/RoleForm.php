@@ -26,31 +26,79 @@ class RoleForm
                     ])
                     ->columnSpanFull(),
                 
-                Section::make('Permissions')
+                ...self::getPermissionSections(),
+            ]);
+    }
+
+    private static function getPermissionSections(): array
+    {
+        $permissions = Permission::all()->groupBy(function ($permission) {
+            $parts = explode('.', $permission->name);
+            return $parts[0] ?? 'other';
+        });
+
+        $sections = [];
+        $sectionConfig = [
+            'admin_user' => 'Admin Users',
+            'blog' => 'Blogs',
+            'artist' => 'Artists',
+            'event' => 'Events',
+            'app_user' => 'App Users',
+            'announcement' => 'Announcements',
+            'gallery' => 'Gallery',
+            'role' => 'Roles',
+        ];
+
+        foreach ($sectionConfig as $key => $label) {
+            if ($permissions->has($key)) {
+                $sections[] = Section::make($label)
                     ->schema([
                         CheckboxList::make('permissions')
-                            ->label('Select Permissions')
+                            ->label("Select {$label} Permissions")
                             ->relationship('permissions', 'name')
-                            ->options(self::getFormattedPermissions())
+                            ->options(self::getFormattedPermissionsForGroup($permissions[$key]))
                             ->columns(2)
                             ->searchable()
                             ->bulkToggleable(),
                     ])
-                    ->columnSpanFull(),
-            ]);
+                    ->columnSpanFull()
+                    ->collapsible();
+            }
+        }
+
+        // Add any other permissions that don't fit the main groups
+        $otherPermissions = $permissions->filter(function ($group, $key) use ($sectionConfig) {
+            return !array_key_exists($key, $sectionConfig);
+        });
+
+        if ($otherPermissions->isNotEmpty()) {
+            $allOtherPermissions = $otherPermissions->flatten();
+            $sections[] = Section::make('Other Permissions')
+                ->schema([
+                    CheckboxList::make('permissions')
+                        ->label('Select Other Permissions')
+                        ->relationship('permissions', 'name')
+                        ->options(self::getFormattedPermissionsForGroup($allOtherPermissions))
+                        ->columns(2)
+                        ->searchable()
+                        ->bulkToggleable(),
+                ])
+                ->columnSpanFull()
+                ->collapsible();
+        }
+
+        return $sections;
     }
 
-    private static function getFormattedPermissions(): array
+    private static function getFormattedPermissionsForGroup($permissions): array
     {
-        $permissions = Permission::all()->pluck('name', 'id');
         $formatted = [];
 
-        foreach ($permissions as $id => $name) {
-            $parts = explode('.', $name);
-            $group = $parts[0] ?? 'Other';
-            $action = $parts[1] ?? $name;
+        foreach ($permissions as $permission) {
+            $parts = explode('.', $permission->name);
+            $action = $parts[1] ?? $permission->name;
             
-            $formatted[$id] = ucfirst($action) . ' ' . ucfirst($group);
+            $formatted[$permission->id] = ucfirst(str_replace('_', ' ', $action));
         }
 
         return $formatted;

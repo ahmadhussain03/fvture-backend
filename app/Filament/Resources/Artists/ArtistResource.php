@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\DJS;
+namespace App\Filament\Resources\Artists;
 
-use App\Filament\Resources\DJS\Pages\CreateDJ;
-use App\Filament\Resources\DJS\Pages\EditDJ;
-use App\Filament\Resources\DJS\Pages\ListDJS;
-use App\Filament\Resources\DJS\Schemas\DJForm;
-use App\Filament\Resources\DJS\Tables\DJSTable;
-use App\Models\DJ;
+use App\Filament\Resources\Artists\Pages\CreateArtist;
+use App\Filament\Resources\Artists\Pages\EditArtist;
+use App\Filament\Resources\Artists\Pages\ListArtists;
+use App\Filament\Resources\Artists\Schemas\ArtistForm;
+use App\Filament\Resources\Artists\Tables\ArtistsTable;
+use App\Models\Artist;
 use BackedEnum;
 use Filament\Resources\Resource;
 use UnitEnum;
@@ -15,17 +15,17 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class DJResource extends Resource
+class ArtistResource extends Resource
 {
-    protected static ?string $model = DJ::class;
+    protected static ?string $model = Artist::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMicrophone;
 
-    protected static ?string $navigationLabel = 'DJs';
+    protected static ?string $navigationLabel = 'Artists';
 
-    protected static ?string $modelLabel = 'DJ';
+    protected static ?string $modelLabel = 'Artist';
 
-    protected static ?string $pluralModelLabel = 'DJs';
+    protected static ?string $pluralModelLabel = 'Artists';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -45,12 +45,12 @@ class DJResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return DJForm::configure($schema);
+        return ArtistForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return DJSTable::configure($table);
+        return ArtistsTable::configure($table);
     }
 
     public static function getRelations(): array
@@ -63,34 +63,34 @@ class DJResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListDJS::route('/'),
-            'create' => CreateDJ::route('/create'),
-            'edit' => EditDJ::route('/{record}/edit'),
+            'index' => ListArtists::route('/'),
+            'create' => CreateArtist::route('/create'),
+            'edit' => EditArtist::route('/{record}/edit'),
         ];
     }
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('dj.view_any') ?? false;
+        return auth()->user()?->can('artist.view_any') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('dj.create') ?? false;
+        return auth()->user()?->can('artist.create') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->can('dj.update') ?? false;
+        return auth()->user()?->can('artist.edit') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->can('dj.delete') ?? false;
+        return auth()->user()?->can('artist.delete') ?? false;
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()?->can('dj.delete') ?? false;
+        return auth()->user()?->can('artist.delete_any') ?? false;
     }
 }

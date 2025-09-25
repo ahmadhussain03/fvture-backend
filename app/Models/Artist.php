@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class DJ extends Model
+class Artist extends Model
 {
     use HasFactory;
 
-    protected $table = 'djs';
+    protected $table = 'artists';
 
     protected $fillable = [
         'name',
@@ -20,6 +20,6 @@ class DJ extends Model
 
     public function events(): BelongsToMany
     {
-        return $this->belongsToMany(Event::class, 'event_dj', 'dj_id', 'event_id');
+        return $this->belongsToMany(Event::class, 'event_artist', 'artist_id', 'event_id');
     }
 }
