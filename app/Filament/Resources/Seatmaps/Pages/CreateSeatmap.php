@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Filament\Resources\Seatmaps\Pages;
 
-use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\Seatmaps\SeatmapResource;
+use Filament\Resources\Pages\CreateRecord;
 
 class CreateSeatmap extends CreateRecord
 {
