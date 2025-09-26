@@ -184,4 +184,11 @@
             });
         </script>
     </div>
+    <!-- Custom Width and Height fields for table object size -->
+    <div class="flex flex-row gap-4 mt-6 justify-center items-center">
+        <label for="custom-table-width" class="font-semibold">Table Width:</label>
+        <input type="number" id="custom-table-width" name="custom_table_width" min="1" value="42" class="border rounded px-2 py-1 w-20" />
+        <label for="custom-table-height" class="font-semibold">Table Height:</label>
+        <input type="number" id="custom-table-height" name="custom_table_height" min="1" value="42" class="border rounded px-2 py-1 w-20" />
+    </div>
 </div>

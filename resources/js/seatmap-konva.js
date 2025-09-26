@@ -103,14 +103,49 @@ window.initSeatmapKonva = function (containerId) {
                 );
                 const width = container.offsetWidth;
                 const height = container.offsetHeight;
-                // All images placed at the center
+                // Get custom width and height from input fields
+                const customWidthInput =
+                    document.getElementById("custom-table-width");
+                const customHeightInput = document.getElementById(
+                    "custom-table-height"
+                );
+                let customWidth =
+                    customWidthInput && customWidthInput.value
+                        ? parseInt(customWidthInput.value)
+                        : 42;
+                let customHeight =
+                    customHeightInput && customHeightInput.value
+                        ? parseInt(customHeightInput.value)
+                        : null;
+                // Track selected image globally in this closure
+                let selectedKonvaImg = null;
+                // Helper to update highlight
+                function highlightImage(img) {
+                    layer.getChildren().forEach((child) => {
+                        child.strokeEnabled(false);
+                        child.shadowEnabled(false);
+                    });
+                    img.stroke("orange");
+                    img.strokeWidth(3);
+                    img.strokeEnabled(true);
+                    img.shadowColor("orange");
+                    img.shadowBlur(10);
+                    img.shadowEnabled(true);
+                    layer.draw();
+                }
+
                 for (let i = 0; i < numTables; i++) {
                     const imgObj = new window.Image();
                     imgObj.crossOrigin = "Anonymous";
                     imgObj.onload = function () {
-                        const targetWidth = 42;
+                        let targetWidth = customWidth;
+                        let targetHeight;
                         const aspectRatio = imgObj.width / imgObj.height;
-                        const targetHeight = targetWidth / aspectRatio;
+                        if (customHeight) {
+                            targetHeight = customHeight;
+                        } else {
+                            targetHeight = targetWidth / aspectRatio;
+                        }
                         const konvaImg = new Konva.Image({
                             image: imgObj,
                             x: width / 2 - targetWidth / 2,
@@ -118,6 +153,20 @@ window.initSeatmapKonva = function (containerId) {
                             width: targetWidth,
                             height: targetHeight,
                             draggable: true,
+                        });
+                        // Click to select
+                        konvaImg.on("click tap", function () {
+                            selectedKonvaImg = konvaImg;
+                            highlightImage(konvaImg);
+                            // Update fields with current size
+                            if (customWidthInput)
+                                customWidthInput.value = Math.round(
+                                    konvaImg.width()
+                                );
+                            if (customHeightInput)
+                                customHeightInput.value = Math.round(
+                                    konvaImg.height()
+                                );
                         });
                         layer.add(konvaImg);
                         layer.draw();
@@ -130,6 +179,35 @@ window.initSeatmapKonva = function (containerId) {
                         );
                     };
                     imgObj.src = imageUrl;
+                }
+
+                // Listen for changes to custom width/height fields to update selected image
+                function updateSelectedImageSize() {
+                    if (selectedKonvaImg) {
+                        let w =
+                            customWidthInput && customWidthInput.value
+                                ? parseInt(customWidthInput.value)
+                                : selectedKonvaImg.width();
+                        let h =
+                            customHeightInput && customHeightInput.value
+                                ? parseInt(customHeightInput.value)
+                                : selectedKonvaImg.height();
+                        selectedKonvaImg.width(w);
+                        selectedKonvaImg.height(h);
+                        layer.draw();
+                    }
+                }
+                if (customWidthInput) {
+                    customWidthInput.addEventListener(
+                        "input",
+                        updateSelectedImageSize
+                    );
+                }
+                if (customHeightInput) {
+                    customHeightInput.addEventListener(
+                        "input",
+                        updateSelectedImageSize
+                    );
                 }
             } else {
                 console.log(
