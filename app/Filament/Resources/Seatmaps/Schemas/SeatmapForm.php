@@ -64,6 +64,10 @@ class SeatmapForm
                                             ->default(1),
                                     ])
                                     ->columnSpanFull(),
+                                ViewField::make('place_table_button')
+                                    ->view('livewire.place-table-button')
+                                    ->label('')
+                                    ->columnSpanFull(),
                             ]),
                     ])
                     ->columns(1)
