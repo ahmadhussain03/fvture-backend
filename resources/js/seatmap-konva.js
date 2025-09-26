@@ -83,15 +83,23 @@ window.initSeatmapKonva = function (containerId) {
         }, 50);
     }
 
-    // DOM mutation debug
+    // DOM mutation debug and auto re-init
     const observer = new MutationObserver((mutations) => {
         console.log("[Konva] Mutation detected:", mutations);
         // Log canvas size on every mutation
-        console.log(
-            "[Konva] Canvas size after mutation:",
-            container.offsetWidth,
-            container.offsetHeight
-        );
+        const canvasDiv = document.getElementById(containerId);
+        if (canvasDiv) {
+            console.log(
+                "[Konva] Canvas size after mutation:",
+                canvasDiv.offsetWidth,
+                canvasDiv.offsetHeight
+            );
+            // If canvas is missing its <canvas> child, re-initialize
+            if (!canvasDiv.querySelector("canvas")) {
+                console.log("[Konva] Canvas missing, re-initializing...");
+                window.initSeatmapKonva(containerId);
+            }
+        }
     });
     observer.observe(container.parentNode, { childList: true, subtree: true });
     container._konvaMutationObserver = observer;
