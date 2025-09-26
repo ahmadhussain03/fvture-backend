@@ -304,9 +304,58 @@ window.initSeatmapKonva = function (containerId) {
                             if (customYInput)
                                 customYInput.value = Math.round(konvaImg.y());
                         });
-                        // Update X/Y fields on dragmove
-                        konvaImg.on("dragmove", function () {
-                            if (window.selectedKonvaImg === konvaImg) {
+                        // Group drag logic for multi-selected tables
+                        let dragStartPositions = null;
+                        konvaImg.on("dragstart", function (e) {
+                            // Only if this image is in the multi-selection
+                            if (multiSelectedKonvaImgs.includes(konvaImg)) {
+                                // Store initial positions for all selected
+                                dragStartPositions = multiSelectedKonvaImgs.map(
+                                    (img) => ({
+                                        img,
+                                        x: img.x(),
+                                        y: img.y(),
+                                    })
+                                );
+                            } else {
+                                dragStartPositions = null;
+                            }
+                        });
+                        konvaImg.on("dragmove", function (e) {
+                            if (
+                                multiSelectedKonvaImgs.length > 1 &&
+                                multiSelectedKonvaImgs.includes(konvaImg) &&
+                                dragStartPositions
+                            ) {
+                                // Calculate movement delta for the dragged image
+                                const draggedImg = konvaImg;
+                                const orig = dragStartPositions.find(
+                                    (d) => d.img === draggedImg
+                                );
+                                const dx = draggedImg.x() - orig.x;
+                                const dy = draggedImg.y() - orig.y;
+                                // Move all other selected images by the same delta
+                                multiSelectedKonvaImgs.forEach((selImg) => {
+                                    if (selImg !== draggedImg) {
+                                        const origSel = dragStartPositions.find(
+                                            (d) => d.img === selImg
+                                        );
+                                        selImg.x(origSel.x + dx);
+                                        selImg.y(origSel.y + dy);
+                                    }
+                                });
+                                layer.batchDraw();
+                                // Update X/Y fields for the first selected
+                                if (customXInput)
+                                    customXInput.value = Math.round(
+                                        multiSelectedKonvaImgs[0].x()
+                                    );
+                                if (customYInput)
+                                    customYInput.value = Math.round(
+                                        multiSelectedKonvaImgs[0].y()
+                                    );
+                            } else if (window.selectedKonvaImg === konvaImg) {
+                                // Single drag fallback
                                 if (customXInput)
                                     customXInput.value = Math.round(
                                         konvaImg.x()
@@ -316,6 +365,9 @@ window.initSeatmapKonva = function (containerId) {
                                         konvaImg.y()
                                     );
                             }
+                        });
+                        konvaImg.on("dragend", function (e) {
+                            dragStartPositions = null;
                         });
                         layer.add(konvaImg);
                         layer.draw();
