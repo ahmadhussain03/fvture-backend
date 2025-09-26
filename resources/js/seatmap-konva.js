@@ -154,14 +154,9 @@ window.initSeatmapKonva = function (containerId) {
                 // Disable fields initially
                 if (customWidthInput) customWidthInput.disabled = true;
                 if (customHeightInput) customHeightInput.disabled = true;
-                let customWidth =
-                    customWidthInput && customWidthInput.value
-                        ? parseInt(customWidthInput.value)
-                        : 42;
-                let customHeight =
-                    customHeightInput && customHeightInput.value
-                        ? parseInt(customHeightInput.value)
-                        : null;
+                // Always use default size for new tables
+                let defaultWidth = 42;
+                let defaultHeight = null;
                 // Track selected image globally
                 window.selectedKonvaImg = null;
                 // Helper to update highlight
@@ -201,11 +196,11 @@ window.initSeatmapKonva = function (containerId) {
                     const imgObj = new window.Image();
                     imgObj.crossOrigin = "Anonymous";
                     imgObj.onload = function () {
-                        let targetWidth = customWidth;
+                        let targetWidth = defaultWidth;
                         let targetHeight;
                         const aspectRatio = imgObj.width / imgObj.height;
-                        if (customHeight) {
-                            targetHeight = customHeight;
+                        if (defaultHeight) {
+                            targetHeight = defaultHeight;
                         } else {
                             targetHeight = targetWidth / aspectRatio;
                         }
