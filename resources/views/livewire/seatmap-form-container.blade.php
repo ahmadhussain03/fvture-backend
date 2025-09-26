@@ -138,15 +138,54 @@
     <!-- Debug button removed, now updates in real time -->
     <!-- Debug labels removed -->
     <div
-        :style="`width: ${mapWidth}px; height: ${mapHeight}px; background: #f5f5f5;`"
+        :style="`width: ${mapWidth}px; height: ${mapHeight}px; background-image: url('${backgroundImage}'); background-size: cover; background-position: center;`"
         class="fi-section rounded-xl bg-custom-500/5 dark:bg-custom-500/5 flex items-center justify-center transition-all duration-300"
     >
-        <div id="seatmap-konva-canvas" style="width: 100%; height: 100%;"></div>
+        <!-- Konva.js Canvas -->
+        <div id="konva-seatmap-canvas" style="width: 100%; height: 100%;"></div>
+        <script type="module">
+            import Konva from 'konva';
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('seatmapCanvas', () => ({
+                    stage: null,
+                    layer: null,
+                    init() {
+                        const container = document.getElementById('konva-seatmap-canvas');
+                        if (!container) return;
+                        // Remove previous stage if exists
+                        if (this.stage) {
+                            this.stage.destroy();
+                        }
+                        // Get container size
+                        const width = container.offsetWidth;
+                        const height = container.offsetHeight;
+                        this.stage = new Konva.Stage({
+                            container: 'konva-seatmap-canvas',
+                            width: width,
+                            height: height,
+                        });
+                        this.layer = new Konva.Layer();
+                        this.stage.add(this.layer);
+                        // Fill background white
+                        const bg = new Konva.Rect({
+                            x: 0,
+                            y: 0,
+                            width: width,
+                            height: height,
+                            fill: '#fff',
+                            listening: false
+                        });
+                        this.layer.add(bg);
+                        this.layer.draw();
+                    }
+                }));
+            });
+            document.addEventListener('DOMContentLoaded', () => {
+                if (window.Alpine && Alpine.getComponent) {
+                    const cmp = Alpine.getComponent('seatmapCanvas');
+                    if (cmp && cmp.init) cmp.init();
+                }
+            });
+        </script>
     </div>
-    <script type="module">
-        import '/resources/js/seatmap-konva.js';
-        document.addEventListener('DOMContentLoaded', () => {
-            window.initSeatmapKonva('seatmap-konva-canvas', 700, 450);
-        });
-    </script>
 </div>
