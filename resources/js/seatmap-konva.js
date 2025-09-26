@@ -221,6 +221,32 @@ window.initSeatmapKonva = function (containerId) {
                     stage.on("mousedown touchstart", (e) => {
                         // Only start selection if not clicking on a shape
                         if (e.target === stage) {
+                            // Deselect all if clicking on empty canvas
+                            multiSelectedKonvaImgs = [];
+                            window.selectedKonvaImg = null;
+                            // Remove highlight from all
+                            layer.getChildren().forEach((child) => {
+                                child.strokeEnabled(false);
+                                child.shadowEnabled(false);
+                            });
+                            // Clear input fields and disable
+                            if (customWidthInput) {
+                                customWidthInput.value = "";
+                                customWidthInput.disabled = true;
+                            }
+                            if (customHeightInput) {
+                                customHeightInput.value = "";
+                                customHeightInput.disabled = true;
+                            }
+                            if (customXInput) {
+                                customXInput.value = "";
+                                customXInput.disabled = true;
+                            }
+                            if (customYInput) {
+                                customYInput.value = "";
+                                customYInput.disabled = true;
+                            }
+                            // Start selection rectangle as before
                             selectionStart = stage.getPointerPosition();
                             if (!selectionRect) {
                                 selectionRect = new Konva.Rect({
