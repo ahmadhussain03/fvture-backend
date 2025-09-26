@@ -201,16 +201,22 @@ window.initSeatmapKonva = function (containerId) {
                     function allSame(getter) {
                         if (multiSelectedKonvaImgs.length === 0) return "";
                         const first = getter(multiSelectedKonvaImgs[0]);
-                        return multiSelectedKonvaImgs.every(img => getter(img) === first) ? Math.round(first) : "";
+                        return multiSelectedKonvaImgs.every(
+                            (img) => getter(img) === first
+                        )
+                            ? Math.round(first)
+                            : "";
                     }
                     if (customWidthInput)
-                        customWidthInput.value = allSame(img => img.width());
+                        customWidthInput.value = allSame((img) => img.width());
                     if (customHeightInput)
-                        customHeightInput.value = allSame(img => img.height());
+                        customHeightInput.value = allSame((img) =>
+                            img.height()
+                        );
                     if (customXInput)
-                        customXInput.value = allSame(img => img.x());
+                        customXInput.value = allSame((img) => img.x());
                     if (customYInput)
-                        customYInput.value = allSame(img => img.y());
+                        customYInput.value = allSame((img) => img.y());
                     // Add selection rectangle for multi-select
                     stage.on("mousedown touchstart", (e) => {
                         // Only start selection if not clicking on a shape
@@ -387,10 +393,19 @@ window.initSeatmapKonva = function (containerId) {
 
                 // Listen for changes to custom width/height fields to update selected image
                 function updateSelectedImageSize() {
-                    if (multiSelectedKonvaImgs && multiSelectedKonvaImgs.length > 0) {
-                        let w = customWidthInput && customWidthInput.value ? parseInt(customWidthInput.value) : null;
-                        let h = customHeightInput && customHeightInput.value ? parseInt(customHeightInput.value) : null;
-                        multiSelectedKonvaImgs.forEach(img => {
+                    if (
+                        multiSelectedKonvaImgs &&
+                        multiSelectedKonvaImgs.length > 0
+                    ) {
+                        let w =
+                            customWidthInput && customWidthInput.value
+                                ? parseInt(customWidthInput.value)
+                                : null;
+                        let h =
+                            customHeightInput && customHeightInput.value
+                                ? parseInt(customHeightInput.value)
+                                : null;
+                        multiSelectedKonvaImgs.forEach((img) => {
                             if (w !== null && !isNaN(w)) img.width(w);
                             if (h !== null && !isNaN(h)) img.height(h);
                         });
@@ -413,10 +428,19 @@ window.initSeatmapKonva = function (containerId) {
                 }
                 // Listen for changes to custom X/Y fields to update selected image position
                 function updateSelectedImagePosition() {
-                    if (multiSelectedKonvaImgs && multiSelectedKonvaImgs.length > 0) {
-                        let x = customXInput && customXInput.value ? parseInt(customXInput.value) : null;
-                        let y = customYInput && customYInput.value ? parseInt(customYInput.value) : null;
-                        multiSelectedKonvaImgs.forEach(img => {
+                    if (
+                        multiSelectedKonvaImgs &&
+                        multiSelectedKonvaImgs.length > 0
+                    ) {
+                        let x =
+                            customXInput && customXInput.value
+                                ? parseInt(customXInput.value)
+                                : null;
+                        let y =
+                            customYInput && customYInput.value
+                                ? parseInt(customYInput.value)
+                                : null;
+                        multiSelectedKonvaImgs.forEach((img) => {
                             if (x !== null && !isNaN(x)) img.x(x);
                             if (y !== null && !isNaN(y)) img.y(y);
                         });
