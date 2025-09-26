@@ -32,10 +32,6 @@ class SeatmapForm
                                     ->required()
                                     ->numeric()
                                     ->default(450),
-                                ViewField::make('seatmap_preview')
-                                    ->view('livewire.seatmap-form-container')
-                                    ->label('Seatmap Preview')
-                                    ->columnSpanFull(),
                                 \Filament\Forms\Components\FileUpload::make('background_url')
                                     ->label('Background Image')
                                     ->image()
@@ -50,6 +46,10 @@ class SeatmapForm
                                     ->moveFiles()
                                     ->helperText('Upload a background image for this seatmap (Max 5MB)')
                                     ->required()
+                                    ->columnSpanFull(),
+                                ViewField::make('seatmap_preview')
+                                    ->view('livewire.seatmap-form-container')
+                                    ->label('Seatmap Preview')
                                     ->columnSpanFull(),
                             ]),
                     ])
