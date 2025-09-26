@@ -31,6 +31,9 @@ window.initSeatmapKonva = function (containerId) {
     if (!container) return;
 
     function initializeKonva() {
+        // Multi-select state
+        let selectionRect, selectionStart, selectionEnd;
+        let multiSelectedKonvaImgs = [];
         // Remove previous stage if exists
         if (container._konvaStage) {
             console.log("[Konva] Destroying previous stage");
@@ -161,27 +164,99 @@ window.initSeatmapKonva = function (containerId) {
                 window.selectedKonvaImg = null;
                 // Helper to update highlight
                 function highlightImage(img) {
+                    // Remove highlight from all
                     layer.getChildren().forEach((child) => {
                         child.strokeEnabled(false);
                         child.shadowEnabled(false);
                     });
-                    img.stroke("orange");
-                    img.strokeWidth(3);
-                    img.strokeEnabled(true);
-                    img.shadowColor("orange");
-                    img.shadowBlur(10);
-                    img.shadowEnabled(true);
+                    // Highlight single or multiple
+                    if (Array.isArray(img)) {
+                        img.forEach((obj) => {
+                            obj.stroke("orange");
+                            obj.strokeWidth(3);
+                            obj.strokeEnabled(true);
+                            obj.shadowColor("orange");
+                            obj.shadowBlur(10);
+                            obj.shadowEnabled(true);
+                        });
+                        window.selectedKonvaImg = img[0] || null;
+                        multiSelectedKonvaImgs = img;
+                    } else {
+                        img.stroke("orange");
+                        img.strokeWidth(3);
+                        img.strokeEnabled(true);
+                        img.shadowColor("orange");
+                        img.shadowBlur(10);
+                        img.shadowEnabled(true);
+                        window.selectedKonvaImg = img;
+                        multiSelectedKonvaImgs = [img];
+                    }
                     layer.draw();
                     // Enable fields when an object is selected
                     if (customWidthInput) customWidthInput.disabled = false;
                     if (customHeightInput) customHeightInput.disabled = false;
                     if (customXInput) customXInput.disabled = false;
                     if (customYInput) customYInput.disabled = false;
-                    // Set X/Y fields to current position
-                    if (customXInput) customXInput.value = Math.round(img.x());
-                    if (customYInput) customYInput.value = Math.round(img.y());
-                    // Set global selected object
-                    window.selectedKonvaImg = img;
+                    // Set X/Y fields to current position (of first selected)
+                    if (multiSelectedKonvaImgs.length > 0) {
+                        if (customXInput)
+                            customXInput.value = Math.round(
+                                multiSelectedKonvaImgs[0].x()
+                            );
+                        if (customYInput)
+                            customYInput.value = Math.round(
+                                multiSelectedKonvaImgs[0].y()
+                            );
+                    }
+                    // Add selection rectangle for multi-select
+                    stage.on("mousedown touchstart", (e) => {
+                        // Only start selection if not clicking on a shape
+                        if (e.target === stage) {
+                            selectionStart = stage.getPointerPosition();
+                            if (!selectionRect) {
+                                selectionRect = new Konva.Rect({
+                                    fill: "rgba(0,161,255,0.2)",
+                                    visible: false,
+                                });
+                                layer.add(selectionRect);
+                            }
+                            selectionRect.setAttrs({
+                                x: selectionStart.x,
+                                y: selectionStart.y,
+                                width: 0,
+                                height: 0,
+                                visible: true,
+                            });
+                            layer.draw();
+                        }
+                    });
+                    stage.on("mousemove touchmove", (e) => {
+                        if (!selectionRect || !selectionRect.visible()) return;
+                        selectionEnd = stage.getPointerPosition();
+                        selectionRect.width(selectionEnd.x - selectionStart.x);
+                        selectionRect.height(selectionEnd.y - selectionStart.y);
+                        layer.batchDraw();
+                    });
+                    stage.on("mouseup touchend", (e) => {
+                        if (!selectionRect || !selectionRect.visible()) return;
+                        selectionRect.visible(false);
+                        // Find all images inside selection
+                        const rect = selectionRect.getClientRect();
+                        const selected = layer
+                            .getChildren()
+                            .filter(
+                                (child) =>
+                                    child.className === "Image" &&
+                                    Konva.Util.haveIntersection(
+                                        rect,
+                                        child.getClientRect()
+                                    )
+                            );
+                        if (selected.length > 0) {
+                            highlightImage(selected);
+                        }
+                        layer.draw();
+                    });
                 }
 
                 // Remove previous listeners to avoid duplicates
