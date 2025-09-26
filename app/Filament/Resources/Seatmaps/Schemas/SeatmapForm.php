@@ -84,6 +84,16 @@ class SeatmapForm
                                         ->minValue(1),
                                 ])
                                 ->columnSpanFull(),
+                            Grid::make(2)
+                                ->schema([
+                                    TextInput::make('custom_table_x')
+                                        ->label('Table Position X')
+                                        ->numeric(),
+                                    TextInput::make('custom_table_y')
+                                        ->label('Table Position Y')
+                                        ->numeric(),
+                                ])
+                                ->columnSpanFull(),
                     ])
                     ->columns(1)
                     ->columnSpanFull(),

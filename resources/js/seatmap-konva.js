@@ -1,6 +1,17 @@
 import Konva from "konva";
 
 window.initSeatmapKonva = function (containerId) {
+    // Disable and clear custom X/Y fields on initial load
+    const customXInputInit = document.getElementById("form.custom_table_x");
+    const customYInputInit = document.getElementById("form.custom_table_y");
+    if (customXInputInit) {
+        customXInputInit.disabled = true;
+        customXInputInit.value = "";
+    }
+    if (customYInputInit) {
+        customYInputInit.disabled = true;
+        customYInputInit.value = "";
+    }
     // Disable and clear custom width/height fields on initial load
     const customWidthInputInit = document.getElementById(
         "form.custom_table_width"
@@ -125,6 +136,21 @@ window.initSeatmapKonva = function (containerId) {
                 const customHeightInput = document.getElementById(
                     "form.custom_table_height"
                 );
+                const customXInput = document.getElementById(
+                    "form.custom_table_x"
+                );
+                const customYInput = document.getElementById(
+                    "form.custom_table_y"
+                );
+                // Disable/clear X/Y fields initially
+                if (customXInput) {
+                    customXInput.disabled = true;
+                    customXInput.value = "";
+                }
+                if (customYInput) {
+                    customYInput.disabled = true;
+                    customYInput.value = "";
+                }
                 // Disable fields initially
                 if (customWidthInput) customWidthInput.disabled = true;
                 if (customHeightInput) customHeightInput.disabled = true;
@@ -154,6 +180,11 @@ window.initSeatmapKonva = function (containerId) {
                     // Enable fields when an object is selected
                     if (customWidthInput) customWidthInput.disabled = false;
                     if (customHeightInput) customHeightInput.disabled = false;
+                    if (customXInput) customXInput.disabled = false;
+                    if (customYInput) customYInput.disabled = false;
+                    // Set X/Y fields to current position
+                    if (customXInput) customXInput.value = Math.round(img.x());
+                    if (customYInput) customYInput.value = Math.round(img.y());
                     // Set global selected object
                     window.selectedKonvaImg = img;
                 }
@@ -198,6 +229,23 @@ window.initSeatmapKonva = function (containerId) {
                                 customHeightInput.value = Math.round(
                                     konvaImg.height()
                                 );
+                            if (customXInput)
+                                customXInput.value = Math.round(konvaImg.x());
+                            if (customYInput)
+                                customYInput.value = Math.round(konvaImg.y());
+                        });
+                        // Update X/Y fields on dragmove
+                        konvaImg.on("dragmove", function () {
+                            if (window.selectedKonvaImg === konvaImg) {
+                                if (customXInput)
+                                    customXInput.value = Math.round(
+                                        konvaImg.x()
+                                    );
+                                if (customYInput)
+                                    customYInput.value = Math.round(
+                                        konvaImg.y()
+                                    );
+                            }
                         });
                         layer.add(konvaImg);
                         layer.draw();
@@ -238,6 +286,34 @@ window.initSeatmapKonva = function (containerId) {
                     customHeightInput.addEventListener(
                         "input",
                         updateSelectedImageSize
+                    );
+                }
+                // Listen for changes to custom X/Y fields to update selected image position
+                function updateSelectedImagePosition() {
+                    if (window.selectedKonvaImg) {
+                        let x =
+                            customXInput && customXInput.value
+                                ? parseInt(customXInput.value)
+                                : window.selectedKonvaImg.x();
+                        let y =
+                            customYInput && customYInput.value
+                                ? parseInt(customYInput.value)
+                                : window.selectedKonvaImg.y();
+                        window.selectedKonvaImg.x(x);
+                        window.selectedKonvaImg.y(y);
+                        layer.draw();
+                    }
+                }
+                if (customXInput) {
+                    customXInput.addEventListener(
+                        "input",
+                        updateSelectedImagePosition
+                    );
+                }
+                if (customYInput) {
+                    customYInput.addEventListener(
+                        "input",
+                        updateSelectedImagePosition
                     );
                 }
             } else {
