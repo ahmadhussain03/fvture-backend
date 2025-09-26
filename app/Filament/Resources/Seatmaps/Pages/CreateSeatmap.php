@@ -15,10 +15,5 @@ class CreateSeatmap extends CreateRecord
         return [];
     }
 
-    protected function getFooterWidgets(): array
-    {
-        return [
-            \App\Livewire\SeatmapFormContainer::class
-        ];
-    }
+    // Removed custom view from footer widgets; now only inside the form
 }
