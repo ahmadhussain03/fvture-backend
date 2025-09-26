@@ -7,16 +7,21 @@ window.initSeatmapKonva = function (containerId) {
     function initializeKonva() {
         // Remove previous stage if exists
         if (container._konvaStage) {
-            console.log('[Konva] Destroying previous stage');
+            console.log("[Konva] Destroying previous stage");
             container._konvaStage.destroy();
         }
         // Get container size
         const width = container.offsetWidth;
         const height = container.offsetHeight;
-        console.log('[Konva] Initializing canvas:', containerId, 'Node:', container);
-        console.log('[Konva] Canvas size:', width, height);
+        console.log(
+            "[Konva] Initializing canvas:",
+            containerId,
+            "Node:",
+            container
+        );
+        console.log("[Konva] Canvas size:", width, height);
         if (height === 0) {
-            console.log('[Konva] Skipping initialization due to zero height');
+            console.log("[Konva] Skipping initialization due to zero height");
             return;
         }
         const stage = new Konva.Stage({
@@ -36,11 +41,11 @@ window.initSeatmapKonva = function (containerId) {
                 "place-table",
                 container._placeTableListener
             );
-            console.log('[Konva] Removed previous place-table listener');
+            console.log("[Konva] Removed previous place-table listener");
         }
         // Attach a new event listener that always uses the latest layer
         container._placeTableListener = function () {
-            console.log('[Konva] place-table event fired');
+            console.log("[Konva] place-table event fired");
             const width = container.offsetWidth;
             const height = container.offsetHeight;
             const circle = new Konva.Circle({
@@ -54,10 +59,15 @@ window.initSeatmapKonva = function (containerId) {
             });
             layer.add(circle);
             layer.draw();
-            console.log('[Konva] Circle added to layer:', layer, 'Stage:', stage);
+            console.log(
+                "[Konva] Circle added to layer:",
+                layer,
+                "Stage:",
+                stage
+            );
         };
         window.addEventListener("place-table", container._placeTableListener);
-        console.log('[Konva] place-table listener attached');
+        console.log("[Konva] place-table listener attached");
     }
 
     // Initialize when height is non-zero
@@ -75,9 +85,13 @@ window.initSeatmapKonva = function (containerId) {
 
     // DOM mutation debug
     const observer = new MutationObserver((mutations) => {
-        console.log('[Konva] Mutation detected:', mutations);
+        console.log("[Konva] Mutation detected:", mutations);
         // Log canvas size on every mutation
-        console.log('[Konva] Canvas size after mutation:', container.offsetWidth, container.offsetHeight);
+        console.log(
+            "[Konva] Canvas size after mutation:",
+            container.offsetWidth,
+            container.offsetHeight
+        );
     });
     observer.observe(container.parentNode, { childList: true, subtree: true });
     container._konvaMutationObserver = observer;
