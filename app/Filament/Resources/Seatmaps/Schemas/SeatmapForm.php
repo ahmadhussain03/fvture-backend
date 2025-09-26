@@ -51,10 +51,18 @@ class SeatmapForm
                                     ->view('livewire.seatmap-form-container')
                                     ->label('Seatmap Preview')
                                     ->columnSpanFull(),
-                                \Filament\Forms\Components\Select::make('club_table_id')
-                                    ->label('Select Club Table')
-                                    ->options(fn() => \App\Models\ClubTable::all()->pluck('name', 'id'))
-                                    ->searchable()
+                                Grid::make(2)
+                                    ->schema([
+                                        \Filament\Forms\Components\Select::make('club_table_id')
+                                            ->label('Select Club Table')
+                                            ->options(fn() => \App\Models\ClubTable::all()->pluck('name', 'id'))
+                                            ->searchable(),
+                                        \Filament\Forms\Components\TextInput::make('number_of_tables')
+                                            ->label('Number of Tables')
+                                            ->numeric()
+                                            ->minValue(1)
+                                            ->default(1),
+                                    ])
                                     ->columnSpanFull(),
                             ]),
                     ])
