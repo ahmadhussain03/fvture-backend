@@ -197,17 +197,20 @@ window.initSeatmapKonva = function (containerId) {
                     if (customHeightInput) customHeightInput.disabled = false;
                     if (customXInput) customXInput.disabled = false;
                     if (customYInput) customYInput.disabled = false;
-                    // Set X/Y fields to current position (of first selected)
-                    if (multiSelectedKonvaImgs.length > 0) {
-                        if (customXInput)
-                            customXInput.value = Math.round(
-                                multiSelectedKonvaImgs[0].x()
-                            );
-                        if (customYInput)
-                            customYInput.value = Math.round(
-                                multiSelectedKonvaImgs[0].y()
-                            );
+                    // Set input fields: only show value if all selected have the same value
+                    function allSame(getter) {
+                        if (multiSelectedKonvaImgs.length === 0) return "";
+                        const first = getter(multiSelectedKonvaImgs[0]);
+                        return multiSelectedKonvaImgs.every(img => getter(img) === first) ? Math.round(first) : "";
                     }
+                    if (customWidthInput)
+                        customWidthInput.value = allSame(img => img.width());
+                    if (customHeightInput)
+                        customHeightInput.value = allSame(img => img.height());
+                    if (customXInput)
+                        customXInput.value = allSame(img => img.x());
+                    if (customYInput)
+                        customYInput.value = allSame(img => img.y());
                     // Add selection rectangle for multi-select
                     stage.on("mousedown touchstart", (e) => {
                         // Only start selection if not clicking on a shape
@@ -384,18 +387,16 @@ window.initSeatmapKonva = function (containerId) {
 
                 // Listen for changes to custom width/height fields to update selected image
                 function updateSelectedImageSize() {
-                    if (window.selectedKonvaImg) {
-                        let w =
-                            customWidthInput && customWidthInput.value
-                                ? parseInt(customWidthInput.value)
-                                : window.selectedKonvaImg.width();
-                        let h =
-                            customHeightInput && customHeightInput.value
-                                ? parseInt(customHeightInput.value)
-                                : window.selectedKonvaImg.height();
-                        window.selectedKonvaImg.width(w);
-                        window.selectedKonvaImg.height(h);
+                    if (multiSelectedKonvaImgs && multiSelectedKonvaImgs.length > 0) {
+                        let w = customWidthInput && customWidthInput.value ? parseInt(customWidthInput.value) : null;
+                        let h = customHeightInput && customHeightInput.value ? parseInt(customHeightInput.value) : null;
+                        multiSelectedKonvaImgs.forEach(img => {
+                            if (w !== null && !isNaN(w)) img.width(w);
+                            if (h !== null && !isNaN(h)) img.height(h);
+                        });
                         layer.draw();
+                        // After update, re-run highlight to update input values (in case of mixed values)
+                        highlightImage(multiSelectedKonvaImgs);
                     }
                 }
                 if (customWidthInput) {
@@ -412,18 +413,16 @@ window.initSeatmapKonva = function (containerId) {
                 }
                 // Listen for changes to custom X/Y fields to update selected image position
                 function updateSelectedImagePosition() {
-                    if (window.selectedKonvaImg) {
-                        let x =
-                            customXInput && customXInput.value
-                                ? parseInt(customXInput.value)
-                                : window.selectedKonvaImg.x();
-                        let y =
-                            customYInput && customYInput.value
-                                ? parseInt(customYInput.value)
-                                : window.selectedKonvaImg.y();
-                        window.selectedKonvaImg.x(x);
-                        window.selectedKonvaImg.y(y);
+                    if (multiSelectedKonvaImgs && multiSelectedKonvaImgs.length > 0) {
+                        let x = customXInput && customXInput.value ? parseInt(customXInput.value) : null;
+                        let y = customYInput && customYInput.value ? parseInt(customYInput.value) : null;
+                        multiSelectedKonvaImgs.forEach(img => {
+                            if (x !== null && !isNaN(x)) img.x(x);
+                            if (y !== null && !isNaN(y)) img.y(y);
+                        });
                         layer.draw();
+                        // After update, re-run highlight to update input values (in case of mixed values)
+                        highlightImage(multiSelectedKonvaImgs);
                     }
                 }
                 if (customXInput) {
