@@ -1,6 +1,15 @@
 import Konva from "konva";
 
 window.initSeatmapKonva = function (containerId) {
+    // Disable custom width/height fields on initial load
+    const customWidthInputInit = document.getElementById(
+        "form.custom_table_width"
+    );
+    const customHeightInputInit = document.getElementById(
+        "form.custom_table_height"
+    );
+    if (customWidthInputInit) customWidthInputInit.disabled = true;
+    if (customHeightInputInit) customHeightInputInit.disabled = true;
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -110,6 +119,9 @@ window.initSeatmapKonva = function (containerId) {
                 const customHeightInput = document.getElementById(
                     "form.custom_table_height"
                 );
+                // Disable fields initially
+                if (customWidthInput) customWidthInput.disabled = true;
+                if (customHeightInput) customHeightInput.disabled = true;
                 let customWidth =
                     customWidthInput && customWidthInput.value
                         ? parseInt(customWidthInput.value)
@@ -133,6 +145,9 @@ window.initSeatmapKonva = function (containerId) {
                     img.shadowBlur(10);
                     img.shadowEnabled(true);
                     layer.draw();
+                    // Enable fields when an object is selected
+                    if (customWidthInput) customWidthInput.disabled = false;
+                    if (customHeightInput) customHeightInput.disabled = false;
                 }
 
                 // Remove previous listeners to avoid duplicates
