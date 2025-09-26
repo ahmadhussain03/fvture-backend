@@ -77,13 +77,11 @@ class SeatmapForm
                                     TextInput::make('custom_table_width')
                                         ->label('Table Width')
                                         ->numeric()
-                                        ->minValue(1)
-                                        ->default(42),
+                                        ->minValue(1),
                                     TextInput::make('custom_table_height')
                                         ->label('Table Height')
                                         ->numeric()
-                                        ->minValue(1)
-                                        ->default(42),
+                                        ->minValue(1),
                                 ])
                                 ->columnSpanFull(),
                     ])

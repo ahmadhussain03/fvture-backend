@@ -1,15 +1,21 @@
 import Konva from "konva";
 
 window.initSeatmapKonva = function (containerId) {
-    // Disable custom width/height fields on initial load
+    // Disable and clear custom width/height fields on initial load
     const customWidthInputInit = document.getElementById(
         "form.custom_table_width"
     );
     const customHeightInputInit = document.getElementById(
         "form.custom_table_height"
     );
-    if (customWidthInputInit) customWidthInputInit.disabled = true;
-    if (customHeightInputInit) customHeightInputInit.disabled = true;
+    if (customWidthInputInit) {
+        customWidthInputInit.disabled = true;
+        customWidthInputInit.value = "";
+    }
+    if (customHeightInputInit) {
+        customHeightInputInit.disabled = true;
+        customHeightInputInit.value = "";
+    }
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -130,8 +136,8 @@ window.initSeatmapKonva = function (containerId) {
                     customHeightInput && customHeightInput.value
                         ? parseInt(customHeightInput.value)
                         : null;
-                // Track selected image globally in this closure
-                let selectedKonvaImg = null;
+                // Track selected image globally
+                window.selectedKonvaImg = null;
                 // Helper to update highlight
                 function highlightImage(img) {
                     layer.getChildren().forEach((child) => {
@@ -148,6 +154,8 @@ window.initSeatmapKonva = function (containerId) {
                     // Enable fields when an object is selected
                     if (customWidthInput) customWidthInput.disabled = false;
                     if (customHeightInput) customHeightInput.disabled = false;
+                    // Set global selected object
+                    window.selectedKonvaImg = img;
                 }
 
                 // Remove previous listeners to avoid duplicates
@@ -180,7 +188,6 @@ window.initSeatmapKonva = function (containerId) {
                         });
                         // Click to select
                         konvaImg.on("click tap", function () {
-                            selectedKonvaImg = konvaImg;
                             highlightImage(konvaImg);
                             // Update fields with current size
                             if (customWidthInput)
@@ -207,17 +214,17 @@ window.initSeatmapKonva = function (containerId) {
 
                 // Listen for changes to custom width/height fields to update selected image
                 function updateSelectedImageSize() {
-                    if (selectedKonvaImg) {
+                    if (window.selectedKonvaImg) {
                         let w =
                             customWidthInput && customWidthInput.value
                                 ? parseInt(customWidthInput.value)
-                                : selectedKonvaImg.width();
+                                : window.selectedKonvaImg.width();
                         let h =
                             customHeightInput && customHeightInput.value
                                 ? parseInt(customHeightInput.value)
-                                : selectedKonvaImg.height();
-                        selectedKonvaImg.width(w);
-                        selectedKonvaImg.height(h);
+                                : window.selectedKonvaImg.height();
+                        window.selectedKonvaImg.width(w);
+                        window.selectedKonvaImg.height(h);
                         layer.draw();
                     }
                 }
