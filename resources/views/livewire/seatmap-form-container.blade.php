@@ -23,6 +23,13 @@
                 }
             };
             update();
+            // Set initial value for map width if empty
+            const widthInputInit = document.getElementById('form.map_width');
+            const componentInit = document.querySelector('.fi-sc-component');
+            if (widthInputInit && componentInit && !widthInputInit.value) {
+                widthInputInit.value = componentInit.offsetWidth;
+                this.mapWidth = componentInit.offsetWidth;
+            }
             // Listen for input changes directly on the form inputs
             const widthInput = document.getElementById('form.map_width');
             const heightInput = document.getElementById('form.map_height');
