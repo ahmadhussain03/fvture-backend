@@ -20,6 +20,8 @@ class SeatmapForm
                     ->schema([
                         Grid::make(2)
                             ->schema([
+                                    \Filament\Forms\Components\Hidden::make('club_tables_json')
+                                        ->default(fn() => \App\Models\ClubTable::all()->toJson()),
                                 TextInput::make('name')
                                     ->label('Seatmap Name')
                                     ->required(),

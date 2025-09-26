@@ -1,5 +1,5 @@
 <div
-    x-data="{
+    x-data="{  
         mapWidth: 700,
         mapHeight: 450,
         maxComponentWidth: 700,
@@ -135,6 +135,9 @@
     x-init="updateFromInputs()"
     class="w-full"
 >
+    <!-- Hidden field for full Club Table data -->
+    <input type="hidden" name="club_tables_json" id="club_tables_json" value="{{ old('club_tables_json', $get('club_tables_json') ?? '') }}">
+
     <!-- Debug button removed, now updates in real time -->
     <!-- Debug labels removed -->
     <div
