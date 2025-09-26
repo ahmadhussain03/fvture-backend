@@ -142,49 +142,42 @@
         class="fi-section rounded-xl bg-custom-500/5 dark:bg-custom-500/5 flex items-center justify-center transition-all duration-300"
     >
         <!-- Konva.js Canvas -->
-        <div id="konva-seatmap-canvas" style="width: 100%; height: 100%;"></div>
-        <script type="module">
-            import Konva from 'konva';
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('seatmapCanvas', () => ({
-                    stage: null,
-                    layer: null,
-                    init() {
-                        const container = document.getElementById('konva-seatmap-canvas');
-                        if (!container) return;
-                        // Remove previous stage if exists
-                        if (this.stage) {
-                            this.stage.destroy();
-                        }
-                        // Get container size
+    <div id="konva-seatmap-canvas" style="width: 100%; height: 100%; background: transparent;"></div>
+        <script>
+            // Resize observer to keep Konva canvas in sync with container size
+            document.addEventListener('DOMContentLoaded', function() {
+                const container = document.getElementById('konva-seatmap-canvas');
+                function resizeKonva() {
+                    if (container && container._konvaStage) {
                         const width = container.offsetWidth;
                         const height = container.offsetHeight;
-                        this.stage = new Konva.Stage({
-                            container: 'konva-seatmap-canvas',
-                            width: width,
-                            height: height,
-                        });
-                        this.layer = new Konva.Layer();
-                        this.stage.add(this.layer);
-                        // Fill background white
-                        const bg = new Konva.Rect({
-                            x: 0,
-                            y: 0,
-                            width: width,
-                            height: height,
-                            fill: '#fff',
-                            listening: false
-                        });
-                        this.layer.add(bg);
-                        this.layer.draw();
+                        container._konvaStage.width(width);
+                        container._konvaStage.height(height);
+                        // Optionally, reposition/redraw objects here if needed
+                        const layer = container._konvaStage.children[0];
+                        if (layer && layer.children && layer.children[0]) {
+                            // Center the circle again
+                            const circle = layer.children[0];
+                            circle.x(width/2);
+                            circle.y(height/2);
+                            circle.radius(Math.min(width, height) / 6);
+                            layer.draw();
+                        }
                     }
-                }));
-            });
-            document.addEventListener('DOMContentLoaded', () => {
-                if (window.Alpine && Alpine.getComponent) {
-                    const cmp = Alpine.getComponent('seatmapCanvas');
-                    if (cmp && cmp.init) cmp.init();
                 }
+                // Observe size changes
+                if (window.ResizeObserver) {
+                    const ro = new ResizeObserver(resizeKonva);
+                    ro.observe(container);
+                } else {
+                    window.addEventListener('resize', resizeKonva);
+                }
+            });
+        </script>
+        @vite('resources/js/seatmap-konva.js')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                window.initSeatmapKonva('konva-seatmap-canvas');
             });
         </script>
     </div>
