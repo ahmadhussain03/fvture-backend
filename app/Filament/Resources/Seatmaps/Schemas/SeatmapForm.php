@@ -30,8 +30,7 @@ class SeatmapForm
                                                 TextInput::make('map_width')
                                                     ->label('Map Width')
                                                     ->required()
-                                                    ->numeric()
-                                                    ->default(700),
+                                                    ->numeric(),
                                                 TextInput::make('map_height')
                                                     ->label('Map Height')
                                                     ->required()

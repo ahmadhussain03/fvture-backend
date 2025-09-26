@@ -2,30 +2,25 @@
     x-data="{
         mapWidth: 700,
         mapHeight: 450,
+        maxComponentWidth: 700,
         formWidth: 700,
         updateFromInputs() {
             const update = () => {
                 const widthInput = document.getElementById('form.map_width');
                 const heightInput = document.getElementById('form.map_height');
-                const form = document.querySelector('.fi-form');
-                if (form) {
-                    this.formWidth = form.offsetWidth;
+                const component = document.querySelector('.fi-sc-component');
+                if (component) {
+                    this.maxComponentWidth = component.offsetWidth;
                 }
                 if (widthInput) {
-                    this.mapWidth = parseInt(widthInput.value) || this.formWidth;
-                    widthInput.max = this.formWidth;
+                    // Set max to component width
+                    widthInput.max = this.maxComponentWidth;
+                    // Clamp value to max
+                    this.mapWidth = Math.min(parseInt(widthInput.value) || this.maxComponentWidth, this.maxComponentWidth);
                 }
                 if (heightInput) {
                     this.mapHeight = parseInt(heightInput.value) || 450;
                 }
-                console.log('DEBUG Alpine update:', {
-                    mapWidth: this.mapWidth,
-                    mapHeight: this.mapHeight,
-                    formWidth: this.formWidth,
-                    widthInput,
-                    heightInput,
-                    form
-                });
             };
             update();
             // Listen for input changes directly on the form inputs
@@ -37,6 +32,8 @@
             if (heightInput) {
                 heightInput.addEventListener('input', update);
             }
+            // Listen for window resize to update max width
+            window.addEventListener('resize', update);
             // MutationObserver for Livewire re-renders
             const observer = new MutationObserver(() => {
                 // Re-attach listeners after DOM changes
