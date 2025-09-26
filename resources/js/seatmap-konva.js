@@ -103,11 +103,12 @@ window.initSeatmapKonva = function (containerId) {
                 );
                 const width = container.offsetWidth;
                 const height = container.offsetHeight;
-                // Get custom width and height from input fields
-                const customWidthInput =
-                    document.getElementById("custom-table-width");
+                // Get custom width and height from Filament-styled input fields
+                const customWidthInput = document.getElementById(
+                    "form.custom_table_width"
+                );
                 const customHeightInput = document.getElementById(
-                    "custom-table-height"
+                    "form.custom_table_height"
                 );
                 let customWidth =
                     customWidthInput && customWidthInput.value
@@ -132,6 +133,14 @@ window.initSeatmapKonva = function (containerId) {
                     img.shadowBlur(10);
                     img.shadowEnabled(true);
                     layer.draw();
+                }
+
+                // Remove previous listeners to avoid duplicates
+                if (customWidthInput) {
+                    customWidthInput.oninput = null;
+                }
+                if (customHeightInput) {
+                    customHeightInput.oninput = null;
                 }
 
                 for (let i = 0; i < numTables; i++) {

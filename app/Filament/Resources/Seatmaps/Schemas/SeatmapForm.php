@@ -71,6 +71,21 @@ class SeatmapForm
                                     ->label('')
                                     ->columnSpanFull(),
                             ]),
+                        // Add custom width/height fields at the bottom, styled as Filament fields
+                            Grid::make(2)
+                                ->schema([
+                                    TextInput::make('custom_table_width')
+                                        ->label('Table Width')
+                                        ->numeric()
+                                        ->minValue(1)
+                                        ->default(42),
+                                    TextInput::make('custom_table_height')
+                                        ->label('Table Height')
+                                        ->numeric()
+                                        ->minValue(1)
+                                        ->default(42),
+                                ])
+                                ->columnSpanFull(),
                     ])
                     ->columns(1)
                     ->columnSpanFull(),
