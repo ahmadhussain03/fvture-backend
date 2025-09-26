@@ -3,6 +3,7 @@
         mapWidth: 700,
         mapHeight: 450,
         maxComponentWidth: 700,
+        backgroundImage: null,
         updateFromInputs() {
             const update = () => {
                 // Find the image upload input or its parent container
@@ -50,6 +51,17 @@
             }
             // Listen for window resize to update max width
             window.addEventListener('resize', update);
+            // Listen for image upload changes for live preview
+            const imageInput = document.querySelector('input.filepond--browser');
+            if (imageInput) {
+                imageInput.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        this.backgroundImage = URL.createObjectURL(e.target.files[0]);
+                    } else {
+                        this.backgroundImage = null;
+                    }
+                });
+            }
             // MutationObserver for Livewire re-renders
             const observer = new MutationObserver(() => {
                 // Re-attach listeners after DOM changes
@@ -63,6 +75,18 @@
                     heightInput.removeEventListener('input', update);
                     heightInput.addEventListener('input', update);
                 }
+                // Re-attach image change listener
+                const imageInput = document.querySelector('input.filepond--browser');
+                if (imageInput) {
+                    imageInput.removeEventListener('change', this.imageChangeListener);
+                    imageInput.addEventListener('change', (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                            this.backgroundImage = URL.createObjectURL(e.target.files[0]);
+                        } else {
+                            this.backgroundImage = null;
+                        }
+                    });
+                }
                 update();
             });
             observer.observe(document.body, { childList: true, subtree: true });
@@ -74,7 +98,7 @@
     <!-- Debug button removed, now updates in real time -->
     <!-- Debug labels removed -->
     <div
-        :style="`width: ${mapWidth}px; height: ${mapHeight}px;`"
+        :style="`width: ${mapWidth}px; height: ${mapHeight}px; background-image: url('${backgroundImage}'); background-size: cover; background-position: center;`"
         class="fi-section rounded-xl bg-custom-500/5 dark:bg-custom-500/5 flex items-center justify-center transition-all duration-300"
     >
         <!-- Custom content goes here -->
