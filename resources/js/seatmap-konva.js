@@ -83,38 +83,60 @@ window.initSeatmapKonva = function (containerId) {
                 );
             }
 
-            // Log the shape_url_full of the selected club table
+            // Get number of tables from input
+            const numTablesInput = document.getElementById(
+                "form.number_of_tables"
+            );
+            let numTables = 1;
+            if (numTablesInput && numTablesInput.value) {
+                numTables = parseInt(numTablesInput.value) || 1;
+            }
+
+            // Place images on the canvas using shape_url_full
             if (selectedClubTable && selectedClubTable.shape_url_full) {
+                const imageUrl = selectedClubTable.shape_url_full;
                 console.log(
-                    "[Konva] Selected Club Table shape_url_full:",
-                    selectedClubTable.shape_url_full
+                    "[Konva] Placing",
+                    numTables,
+                    "images with src:",
+                    imageUrl
                 );
+                const width = container.offsetWidth;
+                const height = container.offsetHeight;
+                // Arrange images in a grid or line (simple horizontal layout)
+                const spacing = width / (numTables + 1);
+                for (let i = 0; i < numTables; i++) {
+                    const imgObj = new window.Image();
+                    imgObj.crossOrigin = "Anonymous";
+                    imgObj.onload = function () {
+                        const targetWidth = 42;
+                        const aspectRatio = imgObj.width / imgObj.height;
+                        const targetHeight = targetWidth / aspectRatio;
+                        const konvaImg = new Konva.Image({
+                            image: imgObj,
+                            x: spacing * (i + 1) - targetWidth / 2,
+                            y: height / 2 - targetHeight / 2,
+                            width: targetWidth,
+                            height: targetHeight,
+                            draggable: true,
+                        });
+                        layer.add(konvaImg);
+                        layer.draw();
+                        console.log("[Konva] Image added to layer:", konvaImg);
+                    };
+                    imgObj.onerror = function () {
+                        console.error(
+                            "[Konva] Failed to load image:",
+                            imageUrl
+                        );
+                    };
+                    imgObj.src = imageUrl;
+                }
             } else {
                 console.log(
                     "[Konva] shape_url_full not found for selected Club Table."
                 );
             }
-
-            // Draw the table (circle) as before
-            const width = container.offsetWidth;
-            const height = container.offsetHeight;
-            const circle = new Konva.Circle({
-                x: width / 2,
-                y: height / 2,
-                radius: Math.min(width, height) / 6,
-                fill: "dodgerblue",
-                stroke: "red",
-                strokeWidth: 5,
-                draggable: true,
-            });
-            layer.add(circle);
-            layer.draw();
-            console.log(
-                "[Konva] Circle added to layer:",
-                layer,
-                "Stage:",
-                stage
-            );
         };
         window.addEventListener("place-table", container._placeTableListener);
         console.log("[Konva] place-table listener attached");
