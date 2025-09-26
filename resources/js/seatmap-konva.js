@@ -103,8 +103,7 @@ window.initSeatmapKonva = function (containerId) {
                 );
                 const width = container.offsetWidth;
                 const height = container.offsetHeight;
-                // Arrange images in a grid or line (simple horizontal layout)
-                const spacing = width / (numTables + 1);
+                // All images placed at the center
                 for (let i = 0; i < numTables; i++) {
                     const imgObj = new window.Image();
                     imgObj.crossOrigin = "Anonymous";
@@ -114,7 +113,7 @@ window.initSeatmapKonva = function (containerId) {
                         const targetHeight = targetWidth / aspectRatio;
                         const konvaImg = new Konva.Image({
                             image: imgObj,
-                            x: spacing * (i + 1) - targetWidth / 2,
+                            x: width / 2 - targetWidth / 2,
                             y: height / 2 - targetHeight / 2,
                             width: targetWidth,
                             height: targetHeight,
