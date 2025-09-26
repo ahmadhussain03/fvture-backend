@@ -59,11 +59,7 @@
     class="w-full"
 >
     <!-- Debug button removed, now updates in real time -->
-    <div class="mb-2 text-xs text-gray-400">
-        <div>mapWidth: <span x-text="mapWidth"></span></div>
-        <div>mapHeight: <span x-text="mapHeight"></span></div>
-        <div>formWidth: <span x-text="formWidth"></span></div>
-    </div>
+    <!-- Debug labels removed -->
     <div
         :style="`width: ${mapWidth}px; height: ${mapHeight}px;`"
         class="fi-section rounded-xl bg-custom-500/5 dark:bg-custom-500/5 flex items-center justify-center transition-all duration-300"
