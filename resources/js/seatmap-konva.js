@@ -46,29 +46,56 @@ window.initSeatmapKonva = function (containerId) {
         // Attach a new event listener that always uses the latest layer
         container._placeTableListener = function () {
             console.log("[Konva] place-table event fired");
-            // Log all available Club Table options from DOM
-            const optionNodes = document.querySelectorAll(
-                ".fi-select-input-option"
-            );
-            const options = Array.from(optionNodes).map((opt) => ({
-                label: opt.textContent.trim(),
-                value: opt.getAttribute("data-value"),
-                disabled:
-                    opt.classList.contains("disabled") ||
-                    opt.getAttribute("aria-disabled") === "true",
-            }));
-            console.log("[Konva] Club Table Options:", options);
-            // Log selected club table option
+            // Get selected club table value from dropdown
             const selectedOption = document.querySelector(
                 '.fi-select-input-option[aria-selected="true"]'
             );
+            let selectedValue = null;
             if (selectedOption) {
+                selectedValue = selectedOption.getAttribute("data-value");
                 const label = selectedOption.textContent.trim();
-                const value = selectedOption.getAttribute("data-value");
-                console.log("[Konva] Selected Club Table:", { label, value });
+                console.log("[Konva] Selected Club Table:", {
+                    label,
+                    value: selectedValue,
+                });
             } else {
                 console.log("[Konva] No Club Table selected");
             }
+
+            // Get full club tables data from hidden field
+            const clubTablesJson = document.querySelector(
+                'input[name="club_tables_json"]'
+            )?.value;
+            let clubTables = [];
+            if (clubTablesJson) {
+                try {
+                    clubTables = JSON.parse(clubTablesJson);
+                } catch (e) {
+                    console.error("[Konva] Error parsing club_tables_json:", e);
+                }
+            }
+
+            // Find the selected club table data
+            let selectedClubTable = null;
+            if (selectedValue && clubTables.length) {
+                selectedClubTable = clubTables.find(
+                    (table) => String(table.id) === String(selectedValue)
+                );
+            }
+
+            // Log the shape_url_full of the selected club table
+            if (selectedClubTable && selectedClubTable.shape_url_full) {
+                console.log(
+                    "[Konva] Selected Club Table shape_url_full:",
+                    selectedClubTable.shape_url_full
+                );
+            } else {
+                console.log(
+                    "[Konva] shape_url_full not found for selected Club Table."
+                );
+            }
+
+            // Draw the table (circle) as before
             const width = container.offsetWidth;
             const height = container.offsetHeight;
             const circle = new Konva.Circle({
