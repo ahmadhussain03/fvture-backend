@@ -3,7 +3,8 @@
         mapWidth: 700,
         mapHeight: 450,
         maxComponentWidth: 700,
-        backgroundImage: null,
+    backgroundImage: null,
+    imageAspectRatio: null,
         updateFromInputs() {
             const update = () => {
                 // Find the image upload input or its parent container
@@ -35,7 +36,14 @@
                     this.mapWidth = this.maxComponentWidth;
                 }
                 if (heightInput) {
-                    this.mapHeight = parseInt(heightInput.value) || 450;
+                    // If image aspect ratio is set, always use calculated height
+                    if (this.imageAspectRatio) {
+                        const newHeight = Math.round(this.mapWidth / this.imageAspectRatio);
+                        this.mapHeight = newHeight;
+                        heightInput.value = newHeight;
+                    } else {
+                        this.mapHeight = parseInt(heightInput.value) || 450;
+                    }
                 }
             };
             update();
@@ -56,9 +64,25 @@
             if (imageInput) {
                 imageInput.addEventListener('change', (e) => {
                     if (e.target.files && e.target.files[0]) {
-                        this.backgroundImage = URL.createObjectURL(e.target.files[0]);
+                        const file = e.target.files[0];
+                        this.backgroundImage = URL.createObjectURL(file);
+                        // Read image aspect ratio
+                        const img = new Image();
+                        img.onload = () => {
+                            this.imageAspectRatio = img.naturalWidth / img.naturalHeight;
+                            // Calculate new height based on current width
+                            const newHeight = Math.round(this.mapWidth / this.imageAspectRatio);
+                            this.mapHeight = newHeight;
+                            // Update Map Height input
+                            const heightInput = document.getElementById('form.map_height');
+                            if (heightInput) {
+                                heightInput.value = newHeight;
+                            }
+                        };
+                        img.src = this.backgroundImage;
                     } else {
                         this.backgroundImage = null;
+                        this.imageAspectRatio = null;
                     }
                 });
             }
@@ -81,9 +105,25 @@
                     imageInput.removeEventListener('change', this.imageChangeListener);
                     imageInput.addEventListener('change', (e) => {
                         if (e.target.files && e.target.files[0]) {
-                            this.backgroundImage = URL.createObjectURL(e.target.files[0]);
+                            const file = e.target.files[0];
+                            this.backgroundImage = URL.createObjectURL(file);
+                            // Read image aspect ratio
+                            const img = new Image();
+                            img.onload = () => {
+                                this.imageAspectRatio = img.naturalWidth / img.naturalHeight;
+                                // Calculate new height based on current width
+                                const newHeight = Math.round(this.mapWidth / this.imageAspectRatio);
+                                this.mapHeight = newHeight;
+                                // Update Map Height input
+                                const heightInput = document.getElementById('form.map_height');
+                                if (heightInput) {
+                                    heightInput.value = newHeight;
+                                }
+                            };
+                            img.src = this.backgroundImage;
                         } else {
                             this.backgroundImage = null;
+                            this.imageAspectRatio = null;
                         }
                     });
                 }
