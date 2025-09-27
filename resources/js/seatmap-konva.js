@@ -34,7 +34,7 @@ window.initSeatmapKonva = function (containerId) {
         // Enable deleting selected table(s) with Delete or Backspace key
         function removeSelectedTables() {
             if (multiSelectedKonvaImgs && multiSelectedKonvaImgs.length > 0) {
-                multiSelectedKonvaImgs.forEach(img => {
+                multiSelectedKonvaImgs.forEach((img) => {
                     img.destroy();
                 });
                 multiSelectedKonvaImgs = [];
@@ -45,10 +45,18 @@ window.initSeatmapKonva = function (containerId) {
                     oldTransformer.destroy();
                 }
                 // Optionally, clear/disable input fields
-                const customWidthInput = document.getElementById("form.custom_table_width");
-                const customHeightInput = document.getElementById("form.custom_table_height");
-                const customXInput = document.getElementById("form.custom_table_x");
-                const customYInput = document.getElementById("form.custom_table_y");
+                const customWidthInput = document.getElementById(
+                    "form.custom_table_width"
+                );
+                const customHeightInput = document.getElementById(
+                    "form.custom_table_height"
+                );
+                const customXInput = document.getElementById(
+                    "form.custom_table_x"
+                );
+                const customYInput = document.getElementById(
+                    "form.custom_table_y"
+                );
                 if (customWidthInput) {
                     customWidthInput.value = "";
                     customWidthInput.disabled = true;
@@ -72,7 +80,11 @@ window.initSeatmapKonva = function (containerId) {
         // Listen for Delete/Backspace key to remove selected tables
         // Use capture to ensure it works even if focus is on input
         document.addEventListener("keydown", function handleDeleteKey(e) {
-            if ((e.key === "Delete" || e.key === "Backspace") && multiSelectedKonvaImgs && multiSelectedKonvaImgs.length > 0) {
+            if (
+                (e.key === "Delete" || e.key === "Backspace") &&
+                multiSelectedKonvaImgs &&
+                multiSelectedKonvaImgs.length > 0
+            ) {
                 // Prevent default only if not typing in an input/textarea
                 const tag = document.activeElement.tagName.toLowerCase();
                 if (tag !== "input" && tag !== "textarea") {
