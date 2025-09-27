@@ -260,6 +260,40 @@ window.initSeatmapKonva = function (containerId) {
                     stage.on("mousedown touchstart", (e) => {
                         // Only start selection if not clicking on a shape
                         if (e.target === stage) {
+                            // Always clear selection and transformer on click/tap on empty canvas
+                            multiSelectedKonvaImgs = [];
+                            window.selectedKonvaImg = null;
+                            // Remove any transformer
+                            let oldTransformer =
+                                layer.findOne(".table-transformer");
+                            if (oldTransformer) {
+                                oldTransformer.destroy();
+                            }
+                            // Clear input fields and disable
+                            if (customWidthInput) {
+                                customWidthInput.value = "";
+                                customWidthInput.disabled = true;
+                            }
+                            if (customHeightInput) {
+                                customHeightInput.value = "";
+                                customHeightInput.disabled = true;
+                            }
+                            if (customXInput) {
+                                customXInput.value = "";
+                                customXInput.disabled = true;
+                            }
+                            if (customYInput) {
+                                customYInput.value = "";
+                                customYInput.disabled = true;
+                            }
+                            // Remove highlight from all (for safety, even if not used)
+                            layer.getChildren().forEach((child) => {
+                                child.strokeEnabled &&
+                                    child.strokeEnabled(false);
+                                child.shadowEnabled &&
+                                    child.shadowEnabled(false);
+                            });
+                            layer.draw();
                             // Start selection rectangle for drag-to-select
                             selectionStart = stage.getPointerPosition();
                             if (!selectionRect) {
@@ -290,15 +324,10 @@ window.initSeatmapKonva = function (containerId) {
                     });
                     stage.on("mouseup touchend", (e) => {
                         if (!selectionRect || !selectionRect.visible()) {
-                            // If not drag-selecting, treat as click-to-deselect
-                            if (e.target === stage && !stage._isDragSelecting) {
+                            // Always clear selection and transformer on click/tap on empty canvas
+                            if (e.target === stage) {
                                 multiSelectedKonvaImgs = [];
                                 window.selectedKonvaImg = null;
-                                // Remove highlight from all
-                                layer.getChildren().forEach((child) => {
-                                    child.strokeEnabled(false);
-                                    child.shadowEnabled(false);
-                                });
                                 // Remove any transformer
                                 let oldTransformer =
                                     layer.findOne(".table-transformer");
@@ -322,6 +351,13 @@ window.initSeatmapKonva = function (containerId) {
                                     customYInput.value = "";
                                     customYInput.disabled = true;
                                 }
+                                // Remove highlight from all (for safety, even if not used)
+                                layer.getChildren().forEach((child) => {
+                                    child.strokeEnabled &&
+                                        child.strokeEnabled(false);
+                                    child.shadowEnabled &&
+                                        child.shadowEnabled(false);
+                                });
                                 layer.draw();
                             }
                             stage._isDragSelecting = false;
