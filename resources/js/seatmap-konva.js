@@ -34,25 +34,14 @@ window.initSeatmapKonva = function (containerId) {
         // Multi-select state
         let selectionRect, selectionStart, selectionEnd;
         let multiSelectedKonvaImgs = [];
-        
         // Remove previous stage if exists
         if (container._konvaStage) {
-            console.log("[Konva] Destroying previous stage");
             container._konvaStage.destroy();
         }
-        
         // Get container size
         const width = container.offsetWidth;
         const height = container.offsetHeight;
-        console.log(
-            "[Konva] Initializing canvas:",
-            containerId,
-            "Node:",
-            container
-        );
-        console.log("[Konva] Canvas size:", width, height);
         if (height === 0) {
-            console.log("[Konva] Skipping initialization due to zero height");
             return;
         }
         
@@ -177,11 +166,8 @@ window.initSeatmapKonva = function (containerId) {
 
         // ADD DRAG-TO-SELECT EVENT LISTENERS HERE (immediately after stage creation)
         stage.on("mousedown touchstart", (e) => {
-            console.log("[Konva] Mouse/touch down detected", e.target);
-            
             // Only start selection if not clicking on a shape
             if (e.target === stage) {
-                console.log("[Konva] Starting drag-to-select on empty canvas");
                 
                 // Always clear selection and transformer on click/tap on empty canvas
                 multiSelectedKonvaImgs = [];
@@ -248,8 +234,6 @@ window.initSeatmapKonva = function (containerId) {
 
         stage.on("mousemove touchmove", (e) => {
             if (!selectionRect || !selectionRect.visible()) return;
-            
-            console.log("[Konva] Drag selection in progress");
             selectionEnd = stage.getPointerPosition();
             selectionRect.width(selectionEnd.x - selectionStart.x);
             selectionRect.height(selectionEnd.y - selectionStart.y);
@@ -257,8 +241,6 @@ window.initSeatmapKonva = function (containerId) {
         });
 
         stage.on("mouseup touchend", (e) => {
-            console.log("[Konva] Mouse/touch up detected");
-            
             if (!selectionRect || !selectionRect.visible()) {
                 // Always clear selection and transformer on click/tap on empty canvas
                 if (e.target === stage) {
@@ -305,7 +287,6 @@ window.initSeatmapKonva = function (containerId) {
                 return;
             }
             
-            console.log("[Konva] Finishing drag selection");
             selectionRect.visible(false);
             
             // Find all images inside selection
@@ -316,7 +297,6 @@ window.initSeatmapKonva = function (containerId) {
                     Konva.Util.haveIntersection(rect, child.getClientRect())
             );
             
-            console.log("[Konva] Found", selected.length, "tables in selection");
             
             if (selected.length > 0) {
                 // Always highlight all selected, and add transformer to first only
@@ -346,12 +326,10 @@ window.initSeatmapKonva = function (containerId) {
                 "place-table",
                 container._placeTableListener
             );
-            console.log("[Konva] Removed previous place-table listener");
         }
         
         // Attach a new event listener that always uses the latest layer
         container._placeTableListener = function () {
-            console.log("[Konva] place-table event fired");
             // Get selected club table value from dropdown
             const selectedOption = document.querySelector(
                 '.fi-select-input-option[aria-selected="true"]'
@@ -360,12 +338,9 @@ window.initSeatmapKonva = function (containerId) {
             if (selectedOption) {
                 selectedValue = selectedOption.getAttribute("data-value");
                 const label = selectedOption.textContent.trim();
-                console.log("[Konva] Selected Club Table:", {
-                    label,
-                    value: selectedValue,
-                });
+                // ...existing code...
             } else {
-                console.log("[Konva] No Club Table selected");
+                // ...existing code...
             }
 
             // Get full club tables data from hidden field
@@ -377,7 +352,7 @@ window.initSeatmapKonva = function (containerId) {
                 try {
                     clubTables = JSON.parse(clubTablesJson);
                 } catch (e) {
-                    console.error("[Konva] Error parsing club_tables_json:", e);
+                    // ...existing code...
                 }
             }
 
@@ -473,7 +448,6 @@ window.initSeatmapKonva = function (containerId) {
                             height: targetHeight,
                             draggable: true,
                         });
-                        
                         // Click to select
                         konvaImg.on("click tap", function () {
                             highlightImage(konvaImg);
@@ -491,13 +465,10 @@ window.initSeatmapKonva = function (containerId) {
                             if (customYInput)
                                 customYInput.value = Math.round(konvaImg.y());
                         });
-                        
                         // Group drag logic for multi-selected tables
                         let dragStartPositions = null;
                         konvaImg.on("dragstart", function (e) {
-                            // Only if this image is in the multi-selection
                             if (multiSelectedKonvaImgs.includes(konvaImg)) {
-                                // Store initial positions for all selected
                                 dragStartPositions = multiSelectedKonvaImgs.map(
                                     (img) => ({
                                         img,
@@ -509,22 +480,18 @@ window.initSeatmapKonva = function (containerId) {
                                 dragStartPositions = null;
                             }
                         });
-                        
                         konvaImg.on("dragmove", function (e) {
                             if (
                                 multiSelectedKonvaImgs.length > 1 &&
                                 multiSelectedKonvaImgs.includes(konvaImg) &&
                                 dragStartPositions
                             ) {
-                                // Calculate movement delta for the dragged image
                                 const draggedImg = konvaImg;
                                 const orig = dragStartPositions.find(
                                     (d) => d.img === draggedImg
                                 );
                                 const dx = draggedImg.x() - orig.x;
                                 const dy = draggedImg.y() - orig.y;
-                                
-                                // Move all other selected images by the same delta
                                 multiSelectedKonvaImgs.forEach((selImg) => {
                                     if (selImg !== draggedImg) {
                                         const origSel = dragStartPositions.find(
@@ -535,8 +502,6 @@ window.initSeatmapKonva = function (containerId) {
                                     }
                                 });
                                 layer.batchDraw();
-                                
-                                // Update X/Y fields for the first selected
                                 if (customXInput)
                                     customXInput.value = Math.round(
                                         multiSelectedKonvaImgs[0].x()
@@ -546,7 +511,6 @@ window.initSeatmapKonva = function (containerId) {
                                         multiSelectedKonvaImgs[0].y()
                                     );
                             } else if (window.selectedKonvaImg === konvaImg) {
-                                // Single drag fallback
                                 if (customXInput)
                                     customXInput.value = Math.round(
                                         konvaImg.x()
@@ -557,14 +521,11 @@ window.initSeatmapKonva = function (containerId) {
                                     );
                             }
                         });
-                        
                         konvaImg.on("dragend", function (e) {
                             dragStartPositions = null;
                         });
-                        
                         layer.add(konvaImg);
                         layer.draw();
-                        console.log("[Konva] Image added to layer:", konvaImg);
                     };
                     
                     imgObj.onerror = function () {
@@ -675,18 +636,11 @@ window.initSeatmapKonva = function (containerId) {
 
     // DOM mutation debug and auto re-init
     const observer = new MutationObserver((mutations) => {
-        console.log("[Konva] Mutation detected:", mutations);
         // Log canvas size on every mutation
         const canvasDiv = document.getElementById(containerId);
         if (canvasDiv) {
-            console.log(
-                "[Konva] Canvas size after mutation:",
-                canvasDiv.offsetWidth,
-                canvasDiv.offsetHeight
-            );
-            // If canvas is missing its <canvas> child, re-initialize
+            // If canvas is missing its <canvas> child, re-initializing
             if (!canvasDiv.querySelector("canvas")) {
-                console.log("[Konva] Canvas missing, re-initializing...");
                 window.initSeatmapKonva(containerId);
             }
         }
