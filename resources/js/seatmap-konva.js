@@ -164,34 +164,73 @@ window.initSeatmapKonva = function (containerId) {
                 window.selectedKonvaImg = null;
                 // Helper to update highlight
                 function highlightImage(img) {
-                    // Remove highlight from all
+                    // Remove any existing transformer
+                    let oldTransformer = layer.findOne(".table-transformer");
+                    if (oldTransformer) {
+                        oldTransformer.destroy();
+                    }
+                    // Remove highlight from all (no stroke/shadow)
                     layer.getChildren().forEach((child) => {
-                        child.strokeEnabled(false);
-                        child.shadowEnabled(false);
+                        child.strokeEnabled && child.strokeEnabled(false);
+                        child.shadowEnabled && child.shadowEnabled(false);
                     });
-                    // Highlight single or multiple
+                    // Always use transformer for selection indication
                     if (Array.isArray(img)) {
-                        img.forEach((obj) => {
-                            obj.stroke("orange");
-                            obj.strokeWidth(3);
-                            obj.strokeEnabled(true);
-                            obj.shadowColor("orange");
-                            obj.shadowBlur(10);
-                            obj.shadowEnabled(true);
-                        });
                         window.selectedKonvaImg = img[0] || null;
                         multiSelectedKonvaImgs = img;
+                        if (multiSelectedKonvaImgs.length > 0) {
+                            const transformer = new Konva.Transformer({
+                                nodes: multiSelectedKonvaImgs,
+                                name: "table-transformer",
+                                enabledAnchors: [
+                                    "top-left",
+                                    "top-right",
+                                    "bottom-left",
+                                    "bottom-right",
+                                    "middle-left",
+                                    "middle-right",
+                                    "top-center",
+                                    "bottom-center",
+                                ],
+                                boundBoxFunc: function (oldBox, newBox) {
+                                    if (
+                                        newBox.width < 10 ||
+                                        newBox.height < 10
+                                    ) {
+                                        return oldBox;
+                                    }
+                                    return newBox;
+                                },
+                            });
+                            layer.add(transformer);
+                            layer.draw();
+                        }
                     } else {
-                        img.stroke("orange");
-                        img.strokeWidth(3);
-                        img.strokeEnabled(true);
-                        img.shadowColor("orange");
-                        img.shadowBlur(10);
-                        img.shadowEnabled(true);
                         window.selectedKonvaImg = img;
                         multiSelectedKonvaImgs = [img];
+                        const transformer = new Konva.Transformer({
+                            nodes: [img],
+                            name: "table-transformer",
+                            enabledAnchors: [
+                                "top-left",
+                                "top-right",
+                                "bottom-left",
+                                "bottom-right",
+                                "middle-left",
+                                "middle-right",
+                                "top-center",
+                                "bottom-center",
+                            ],
+                            boundBoxFunc: function (oldBox, newBox) {
+                                if (newBox.width < 10 || newBox.height < 10) {
+                                    return oldBox;
+                                }
+                                return newBox;
+                            },
+                        });
+                        layer.add(transformer);
+                        layer.draw();
                     }
-                    layer.draw();
                     // Enable fields when an object is selected
                     if (customWidthInput) customWidthInput.disabled = false;
                     if (customHeightInput) customHeightInput.disabled = false;
@@ -221,32 +260,7 @@ window.initSeatmapKonva = function (containerId) {
                     stage.on("mousedown touchstart", (e) => {
                         // Only start selection if not clicking on a shape
                         if (e.target === stage) {
-                            // Deselect all if clicking on empty canvas
-                            multiSelectedKonvaImgs = [];
-                            window.selectedKonvaImg = null;
-                            // Remove highlight from all
-                            layer.getChildren().forEach((child) => {
-                                child.strokeEnabled(false);
-                                child.shadowEnabled(false);
-                            });
-                            // Clear input fields and disable
-                            if (customWidthInput) {
-                                customWidthInput.value = "";
-                                customWidthInput.disabled = true;
-                            }
-                            if (customHeightInput) {
-                                customHeightInput.value = "";
-                                customHeightInput.disabled = true;
-                            }
-                            if (customXInput) {
-                                customXInput.value = "";
-                                customXInput.disabled = true;
-                            }
-                            if (customYInput) {
-                                customYInput.value = "";
-                                customYInput.disabled = true;
-                            }
-                            // Start selection rectangle as before
+                            // Start selection rectangle for drag-to-select
                             selectionStart = stage.getPointerPosition();
                             if (!selectionRect) {
                                 selectionRect = new Konva.Rect({
@@ -263,6 +277,8 @@ window.initSeatmapKonva = function (containerId) {
                                 visible: true,
                             });
                             layer.draw();
+                            // Mark that we are starting a drag
+                            stage._isDragSelecting = true;
                         }
                     });
                     stage.on("mousemove touchmove", (e) => {
@@ -273,7 +289,44 @@ window.initSeatmapKonva = function (containerId) {
                         layer.batchDraw();
                     });
                     stage.on("mouseup touchend", (e) => {
-                        if (!selectionRect || !selectionRect.visible()) return;
+                        if (!selectionRect || !selectionRect.visible()) {
+                            // If not drag-selecting, treat as click-to-deselect
+                            if (e.target === stage && !stage._isDragSelecting) {
+                                multiSelectedKonvaImgs = [];
+                                window.selectedKonvaImg = null;
+                                // Remove highlight from all
+                                layer.getChildren().forEach((child) => {
+                                    child.strokeEnabled(false);
+                                    child.shadowEnabled(false);
+                                });
+                                // Remove any transformer
+                                let oldTransformer =
+                                    layer.findOne(".table-transformer");
+                                if (oldTransformer) {
+                                    oldTransformer.destroy();
+                                }
+                                // Clear input fields and disable
+                                if (customWidthInput) {
+                                    customWidthInput.value = "";
+                                    customWidthInput.disabled = true;
+                                }
+                                if (customHeightInput) {
+                                    customHeightInput.value = "";
+                                    customHeightInput.disabled = true;
+                                }
+                                if (customXInput) {
+                                    customXInput.value = "";
+                                    customXInput.disabled = true;
+                                }
+                                if (customYInput) {
+                                    customYInput.value = "";
+                                    customYInput.disabled = true;
+                                }
+                                layer.draw();
+                            }
+                            stage._isDragSelecting = false;
+                            return;
+                        }
                         selectionRect.visible(false);
                         // Find all images inside selection
                         const rect = selectionRect.getClientRect();
@@ -288,9 +341,26 @@ window.initSeatmapKonva = function (containerId) {
                                     )
                             );
                         if (selected.length > 0) {
+                            // Always highlight all selected, and add transformer to first only
                             highlightImage(selected);
+                        } else {
+                            // If nothing selected, clear selection and transformer
+                            multiSelectedKonvaImgs = [];
+                            window.selectedKonvaImg = null;
+                            // Remove highlight from all
+                            layer.getChildren().forEach((child) => {
+                                child.strokeEnabled(false);
+                                child.shadowEnabled(false);
+                            });
+                            // Remove any transformer
+                            let oldTransformer =
+                                layer.findOne(".table-transformer");
+                            if (oldTransformer) {
+                                oldTransformer.destroy();
+                            }
                         }
                         layer.draw();
+                        stage._isDragSelecting = false;
                     });
                 }
 
