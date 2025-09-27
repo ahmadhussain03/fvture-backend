@@ -31,6 +31,56 @@ window.initSeatmapKonva = function (containerId) {
     if (!container) return;
 
     function initializeKonva() {
+        // Enable deleting selected table(s) with Delete or Backspace key
+        function removeSelectedTables() {
+            if (multiSelectedKonvaImgs && multiSelectedKonvaImgs.length > 0) {
+                multiSelectedKonvaImgs.forEach(img => {
+                    img.destroy();
+                });
+                multiSelectedKonvaImgs = [];
+                window.selectedKonvaImg = null;
+                // Remove any transformer
+                let oldTransformer = layer.findOne(".table-transformer");
+                if (oldTransformer) {
+                    oldTransformer.destroy();
+                }
+                // Optionally, clear/disable input fields
+                const customWidthInput = document.getElementById("form.custom_table_width");
+                const customHeightInput = document.getElementById("form.custom_table_height");
+                const customXInput = document.getElementById("form.custom_table_x");
+                const customYInput = document.getElementById("form.custom_table_y");
+                if (customWidthInput) {
+                    customWidthInput.value = "";
+                    customWidthInput.disabled = true;
+                }
+                if (customHeightInput) {
+                    customHeightInput.value = "";
+                    customHeightInput.disabled = true;
+                }
+                if (customXInput) {
+                    customXInput.value = "";
+                    customXInput.disabled = true;
+                }
+                if (customYInput) {
+                    customYInput.value = "";
+                    customYInput.disabled = true;
+                }
+                layer.draw();
+            }
+        }
+
+        // Listen for Delete/Backspace key to remove selected tables
+        // Use capture to ensure it works even if focus is on input
+        document.addEventListener("keydown", function handleDeleteKey(e) {
+            if ((e.key === "Delete" || e.key === "Backspace") && multiSelectedKonvaImgs && multiSelectedKonvaImgs.length > 0) {
+                // Prevent default only if not typing in an input/textarea
+                const tag = document.activeElement.tagName.toLowerCase();
+                if (tag !== "input" && tag !== "textarea") {
+                    e.preventDefault();
+                    removeSelectedTables();
+                }
+            }
+        });
         // Multi-select state
         let selectionRect, selectionStart, selectionEnd;
         let multiSelectedKonvaImgs = [];
@@ -44,7 +94,7 @@ window.initSeatmapKonva = function (containerId) {
         if (height === 0) {
             return;
         }
-        
+
         const stage = new Konva.Stage({
             container: containerId,
             width: width,
@@ -52,7 +102,7 @@ window.initSeatmapKonva = function (containerId) {
         });
         const layer = new Konva.Layer();
         stage.add(layer);
-        
+
         // Store stage and layer reference for cleanup and event use
         container._konvaStage = stage;
         container._konvaLayer = layer;
@@ -60,23 +110,27 @@ window.initSeatmapKonva = function (containerId) {
         // Helper to update highlight - MOVED HERE to be accessible by both drag-select and place-table
         function highlightImage(img) {
             // Get input field references
-            const customWidthInput = document.getElementById("form.custom_table_width");
-            const customHeightInput = document.getElementById("form.custom_table_height");
+            const customWidthInput = document.getElementById(
+                "form.custom_table_width"
+            );
+            const customHeightInput = document.getElementById(
+                "form.custom_table_height"
+            );
             const customXInput = document.getElementById("form.custom_table_x");
             const customYInput = document.getElementById("form.custom_table_y");
-            
+
             // Remove any existing transformer
             let oldTransformer = layer.findOne(".table-transformer");
             if (oldTransformer) {
                 oldTransformer.destroy();
             }
-            
+
             // Remove highlight from all (no stroke/shadow)
             layer.getChildren().forEach((child) => {
                 child.strokeEnabled && child.strokeEnabled(false);
                 child.shadowEnabled && child.shadowEnabled(false);
             });
-            
+
             // Always use transformer for selection indication
             if (Array.isArray(img)) {
                 window.selectedKonvaImg = img[0] || null;
@@ -96,10 +150,7 @@ window.initSeatmapKonva = function (containerId) {
                             "bottom-center",
                         ],
                         boundBoxFunc: function (oldBox, newBox) {
-                            if (
-                                newBox.width < 10 ||
-                                newBox.height < 10
-                            ) {
+                            if (newBox.width < 10 || newBox.height < 10) {
                                 return oldBox;
                             }
                             return newBox;
@@ -134,13 +185,13 @@ window.initSeatmapKonva = function (containerId) {
                 layer.add(transformer);
                 layer.draw();
             }
-            
+
             // Enable fields when an object is selected
             if (customWidthInput) customWidthInput.disabled = false;
             if (customHeightInput) customHeightInput.disabled = false;
             if (customXInput) customXInput.disabled = false;
             if (customYInput) customYInput.disabled = false;
-            
+
             // Set input fields: only show value if all selected have the same value
             function allSame(getter) {
                 if (multiSelectedKonvaImgs.length === 0) return "";
@@ -151,40 +202,43 @@ window.initSeatmapKonva = function (containerId) {
                     ? Math.round(first)
                     : "";
             }
-            
+
             if (customWidthInput)
                 customWidthInput.value = allSame((img) => img.width());
             if (customHeightInput)
-                customHeightInput.value = allSame((img) =>
-                    img.height()
-                );
-            if (customXInput)
-                customXInput.value = allSame((img) => img.x());
-            if (customYInput)
-                customYInput.value = allSame((img) => img.y());
+                customHeightInput.value = allSame((img) => img.height());
+            if (customXInput) customXInput.value = allSame((img) => img.x());
+            if (customYInput) customYInput.value = allSame((img) => img.y());
         }
 
         // ADD DRAG-TO-SELECT EVENT LISTENERS HERE (immediately after stage creation)
         stage.on("mousedown touchstart", (e) => {
             // Only start selection if not clicking on a shape
             if (e.target === stage) {
-                
                 // Always clear selection and transformer on click/tap on empty canvas
                 multiSelectedKonvaImgs = [];
                 window.selectedKonvaImg = null;
-                
+
                 // Remove any transformer
                 let oldTransformer = layer.findOne(".table-transformer");
                 if (oldTransformer) {
                     oldTransformer.destroy();
                 }
-                
+
                 // Clear input fields and disable
-                const customWidthInput = document.getElementById("form.custom_table_width");
-                const customHeightInput = document.getElementById("form.custom_table_height");
-                const customXInput = document.getElementById("form.custom_table_x");
-                const customYInput = document.getElementById("form.custom_table_y");
-                
+                const customWidthInput = document.getElementById(
+                    "form.custom_table_width"
+                );
+                const customHeightInput = document.getElementById(
+                    "form.custom_table_height"
+                );
+                const customXInput = document.getElementById(
+                    "form.custom_table_x"
+                );
+                const customYInput = document.getElementById(
+                    "form.custom_table_y"
+                );
+
                 if (customWidthInput) {
                     customWidthInput.value = "";
                     customWidthInput.disabled = true;
@@ -201,14 +255,14 @@ window.initSeatmapKonva = function (containerId) {
                     customYInput.value = "";
                     customYInput.disabled = true;
                 }
-                
+
                 // Remove highlight from all
                 layer.getChildren().forEach((child) => {
                     child.strokeEnabled && child.strokeEnabled(false);
                     child.shadowEnabled && child.shadowEnabled(false);
                 });
                 layer.draw();
-                
+
                 // Start selection rectangle for drag-to-select
                 selectionStart = stage.getPointerPosition();
                 if (!selectionRect) {
@@ -226,7 +280,7 @@ window.initSeatmapKonva = function (containerId) {
                     visible: true,
                 });
                 layer.draw();
-                
+
                 // Mark that we are starting a drag
                 stage._isDragSelecting = true;
             }
@@ -246,19 +300,27 @@ window.initSeatmapKonva = function (containerId) {
                 if (e.target === stage) {
                     multiSelectedKonvaImgs = [];
                     window.selectedKonvaImg = null;
-                    
+
                     // Remove any transformer
                     let oldTransformer = layer.findOne(".table-transformer");
                     if (oldTransformer) {
                         oldTransformer.destroy();
                     }
-                    
+
                     // Clear input fields and disable
-                    const customWidthInput = document.getElementById("form.custom_table_width");
-                    const customHeightInput = document.getElementById("form.custom_table_height");
-                    const customXInput = document.getElementById("form.custom_table_x");
-                    const customYInput = document.getElementById("form.custom_table_y");
-                    
+                    const customWidthInput = document.getElementById(
+                        "form.custom_table_width"
+                    );
+                    const customHeightInput = document.getElementById(
+                        "form.custom_table_height"
+                    );
+                    const customXInput = document.getElementById(
+                        "form.custom_table_x"
+                    );
+                    const customYInput = document.getElementById(
+                        "form.custom_table_y"
+                    );
+
                     if (customWidthInput) {
                         customWidthInput.value = "";
                         customWidthInput.disabled = true;
@@ -275,7 +337,7 @@ window.initSeatmapKonva = function (containerId) {
                         customYInput.value = "";
                         customYInput.disabled = true;
                     }
-                    
+
                     // Remove highlight from all
                     layer.getChildren().forEach((child) => {
                         child.strokeEnabled && child.strokeEnabled(false);
@@ -286,18 +348,19 @@ window.initSeatmapKonva = function (containerId) {
                 stage._isDragSelecting = false;
                 return;
             }
-            
+
             selectionRect.visible(false);
-            
+
             // Find all images inside selection
             const rect = selectionRect.getClientRect();
-            const selected = layer.getChildren().filter(
-                (child) =>
-                    child.className === "Image" &&
-                    Konva.Util.haveIntersection(rect, child.getClientRect())
-            );
-            
-            
+            const selected = layer
+                .getChildren()
+                .filter(
+                    (child) =>
+                        child.className === "Image" &&
+                        Konva.Util.haveIntersection(rect, child.getClientRect())
+                );
+
             if (selected.length > 0) {
                 // Always highlight all selected, and add transformer to first only
                 highlightImage(selected);
@@ -327,7 +390,7 @@ window.initSeatmapKonva = function (containerId) {
                 container._placeTableListener
             );
         }
-        
+
         // Attach a new event listener that always uses the latest layer
         container._placeTableListener = function () {
             // Get selected club table value from dropdown
@@ -384,7 +447,7 @@ window.initSeatmapKonva = function (containerId) {
                 );
                 const width = container.offsetWidth;
                 const height = container.offsetHeight;
-                
+
                 // Get custom width and height from Filament-styled input fields
                 const customWidthInput = document.getElementById(
                     "form.custom_table_width"
@@ -398,7 +461,7 @@ window.initSeatmapKonva = function (containerId) {
                 const customYInput = document.getElementById(
                     "form.custom_table_y"
                 );
-                
+
                 // Disable/clear X/Y fields initially
                 if (customXInput) {
                     customXInput.disabled = true;
@@ -408,15 +471,15 @@ window.initSeatmapKonva = function (containerId) {
                     customYInput.disabled = true;
                     customYInput.value = "";
                 }
-                
+
                 // Disable fields initially
                 if (customWidthInput) customWidthInput.disabled = true;
                 if (customHeightInput) customHeightInput.disabled = true;
-                
+
                 // Always use default size for new tables
                 let defaultWidth = 42;
                 let defaultHeight = null;
-                
+
                 // Track selected image globally
                 window.selectedKonvaImg = null;
 
@@ -527,7 +590,7 @@ window.initSeatmapKonva = function (containerId) {
                         layer.add(konvaImg);
                         layer.draw();
                     };
-                    
+
                     imgObj.onerror = function () {
                         console.error(
                             "[Konva] Failed to load image:",
@@ -560,7 +623,7 @@ window.initSeatmapKonva = function (containerId) {
                         highlightImage(multiSelectedKonvaImgs);
                     }
                 }
-                
+
                 if (customWidthInput) {
                     customWidthInput.addEventListener(
                         "input",
@@ -573,7 +636,7 @@ window.initSeatmapKonva = function (containerId) {
                         updateSelectedImageSize
                     );
                 }
-                
+
                 // Listen for changes to custom X/Y fields to update selected image position
                 function updateSelectedImagePosition() {
                     if (
@@ -597,7 +660,7 @@ window.initSeatmapKonva = function (containerId) {
                         highlightImage(multiSelectedKonvaImgs);
                     }
                 }
-                
+
                 if (customXInput) {
                     customXInput.addEventListener(
                         "input",
@@ -616,7 +679,7 @@ window.initSeatmapKonva = function (containerId) {
                 );
             }
         };
-        
+
         window.addEventListener("place-table", container._placeTableListener);
         console.log("[Konva] place-table listener attached");
     }
