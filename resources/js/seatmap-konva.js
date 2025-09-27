@@ -1,6 +1,37 @@
 import Konva from "konva";
 
 window.initSeatmapKonva = function (containerId) {
+    // Helper to serialize all table objects to JSON for backend
+    function serializeTablesToJson() {
+        const container = document.getElementById(containerId);
+        if (!container || !container._konvaLayer) return;
+        const layer = container._konvaLayer;
+        const tables = layer
+            .getChildren()
+            .filter((obj) => obj.className === "Image")
+            .map((img) => ({
+                club_table_id: img.attrs.club_table_id || null,
+                x: img.x(),
+                y: img.y(),
+                width: img.width(),
+                height: img.height(),
+                number: img.attrs.seat_number || null,
+            }));
+        const hiddenField = document.getElementById("form.seatmap_tables_json");
+        if (hiddenField) {
+            hiddenField.value = JSON.stringify(tables);
+        }
+    }
+    window.serializeTablesToJson = serializeTablesToJson;
+
+    // Attach to form submit
+    document.addEventListener(
+        "submit",
+        function (e) {
+            serializeTablesToJson();
+        },
+        true
+    );
     // Disable and clear custom X/Y fields on initial load
     const customXInputInit = document.getElementById("form.custom_table_x");
     const customYInputInit = document.getElementById("form.custom_table_y");
@@ -76,6 +107,7 @@ window.initSeatmapKonva = function (containerId) {
                 layer.draw();
             }
         }
+        // ...existing code...
 
         // Listen for Delete/Backspace key to remove selected tables
         // Use capture to ensure it works even if focus is on input

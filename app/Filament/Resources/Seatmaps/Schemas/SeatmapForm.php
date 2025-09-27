@@ -5,6 +5,9 @@ namespace App\Filament\Resources\Seatmaps\Schemas;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ViewField;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Section;
@@ -20,8 +23,9 @@ class SeatmapForm
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                    \Filament\Forms\Components\Hidden::make('club_tables_json')
-                                        ->default(fn() => json_encode(\App\Models\ClubTable::all()->toArray())),
+                                Hidden::make('seatmap_tables_json'),
+                                Hidden::make('club_tables_json')
+                                    ->default(fn() => json_encode(\App\Models\ClubTable::all()->toArray())),
                                 TextInput::make('name')
                                     ->label('Seatmap Name')
                                     ->required(),
@@ -34,7 +38,7 @@ class SeatmapForm
                                     ->required()
                                     ->numeric()
                                     ->default(450),
-                                \Filament\Forms\Components\FileUpload::make('background_url')
+                                FileUpload::make('background_url')
                                     ->label('Background Image')
                                     ->image()
                                     ->disk('s3')
@@ -55,11 +59,11 @@ class SeatmapForm
                                     ->columnSpanFull(),
                                 Grid::make(2)
                                     ->schema([
-                                        \Filament\Forms\Components\Select::make('club_table_id')
+                                        Select::make('club_table_id')
                                             ->label('Select Club Table')
                                             ->options(fn() => \App\Models\ClubTable::all()->pluck('name', 'id'))
                                             ->searchable(),
-                                        \Filament\Forms\Components\TextInput::make('number_of_tables')
+                                        TextInput::make('number_of_tables')
                                             ->label('Number of Tables')
                                             ->numeric()
                                             ->minValue(1)
