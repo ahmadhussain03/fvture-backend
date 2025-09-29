@@ -35,10 +35,10 @@ class CreateSeatmap extends CreateRecord
             foreach ($tables as $table) {
                 $seatmap->seatmapTables()->create([
                     'club_table_id' => $table['club_table_id'] ?? null,
-                    'pos_x'         => $table['x'] ?? 0,
-                    'pos_y'         => $table['y'] ?? 0,
-                    'seat_width'    => $table['width'] ?? 0,
-                    'seat_height'   => $table['height'] ?? 0,
+                    'pos_x'         => round($table['x'] ?? 0),
+                    'pos_y'         => round($table['y'] ?? 0),
+                    'seat_width'    => round($table['width'] ?? 0),
+                    'seat_height'   => round($table['height'] ?? 0),
                     'seat_number'   => $table['number'] ?? null,
                 ]);
             }
