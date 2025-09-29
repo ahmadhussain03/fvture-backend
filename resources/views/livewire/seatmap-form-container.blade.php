@@ -141,7 +141,7 @@
     <!-- Debug button removed, now updates in real time -->
     <!-- Debug labels removed -->
     <div
-        :style="`width: ${mapWidth}px; height: ${mapHeight}px; background-image: url('${backgroundImage}'); background-size: cover; background-position: center;`"
+        :style="`width: ${mapWidth}px; height: ${mapHeight}px; ${backgroundImage ? `background-image: url('${backgroundImage}'); background-size: cover; background-position: center;` : ''}`"
         class="fi-section rounded-xl bg-custom-500/5 dark:bg-custom-500/5 flex items-center justify-center transition-all duration-300"
     >
         <!-- Konva.js Canvas -->
