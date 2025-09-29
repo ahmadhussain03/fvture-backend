@@ -11,16 +11,16 @@ window.initSeatmapKonva = function (containerId) {
         const layer = container._konvaLayer;
         const tables = layer
             .getChildren()
-            .filter((obj) => obj.className === "Group")
-            .map((group) => {
-                const image = group.findOne("Image");
+            .filter((obj) => obj.className === "Label")
+            .map((label) => {
+                const image = label.getChildren()[0]; // First child is Image
                 return {
-                    club_table_id: group.attrs.club_table_id || null,
-                    x: group.x(),
-                    y: group.y(),
+                    club_table_id: label.attrs.club_table_id || null,
+                    x: label.x(),
+                    y: label.y(),
                     width: image ? image.width() : 0,
                     height: image ? image.height() : 0,
-                    number: group.attrs.table_number || null,
+                    number: label.attrs.table_number || null,
                 };
             });
 
@@ -66,8 +66,8 @@ window.initSeatmapKonva = function (containerId) {
         const layer = container._konvaLayer;
         const existingTables = layer
             .getChildren()
-            .filter((obj) => obj.className === "Group")
-            .map((group) => group.attrs.table_number || 0)
+            .filter((obj) => obj.className === "Label")
+            .map((label) => label.attrs.table_number || 0)
             .filter((num) => num > 0);
 
         // Initialize global counter if this is the first time
@@ -104,24 +104,22 @@ window.initSeatmapKonva = function (containerId) {
     }
 
     // Helper to update table number text when table is resized
-    function updateTableNumberText(tableGroup) {
-        const tableNumber = tableGroup.attrs.table_number;
-        const image = tableGroup.findOne("Image");
+    function updateTableNumberText(label) {
+        const tableNumber = label.attrs.table_number;
+        const image = label.getChildren()[0]; // First child is Image
+        const text = label.getChildren()[1]; // Second child is Text
 
-        // Find and remove existing text
-        const existingText = tableGroup.findOne("Text");
-        if (existingText) {
-            existingText.destroy();
-        }
+        // Update text content and position
+        text.text(tableNumber.toString());
+        text.x(image.width() / 2);
+        text.y(image.height() / 2);
+        text.fontSize(Math.min(image.width(), image.height()) * 0.3);
 
-        // Create new text with updated size (position is relative to table)
-        const text = createTableNumberText(
-            tableNumber,
-            image.width(),
-            image.height()
-        );
-        tableGroup.add(text);
-        tableGroup.getLayer().draw();
+        // Center the text properly
+        text.offsetX(text.width() / 2);
+        text.offsetY(text.height() / 2);
+
+        label.getLayer().draw();
     }
 
     // Attach to form submit
@@ -506,7 +504,7 @@ window.initSeatmapKonva = function (containerId) {
                 .getChildren()
                 .filter(
                     (child) =>
-                        child.className === "Group" &&
+                        child.className === "Label" &&
                         Konva.Util.haveIntersection(rect, child.getClientRect())
                 );
 
@@ -662,8 +660,8 @@ window.initSeatmapKonva = function (containerId) {
                             // Get the next table number for this specific table
                             const tableNumber = getNextTableNumber();
 
-                            // Create a group to contain both the image and text
-                            const tableGroup = new Konva.Group({
+                            // Create Label object with all attributes
+                            const tableLabel = new Konva.Label({
                                 x: width / 2 - targetWidth / 2,
                                 y: height / 2 - targetHeight / 2,
                                 draggable: true,
@@ -675,6 +673,7 @@ window.initSeatmapKonva = function (containerId) {
                                 },
                             });
 
+                            // Create Image as first child of Label
                             const konvaImg = new Konva.Image({
                                 image: imgObj,
                                 x: 0,
@@ -683,20 +682,38 @@ window.initSeatmapKonva = function (containerId) {
                                 height: targetHeight,
                             });
 
-                            // Create table number text label
-                            const tableNumberText = createTableNumberText(
-                                tableNumber,
-                                targetWidth,
-                                targetHeight
+                            // Create table number text as second child of Label
+                            const tableNumberText = new Konva.Text({
+                                text: tableNumber.toString(),
+                                x: targetWidth / 2,
+                                y: targetHeight / 2,
+                                fontSize:
+                                    Math.min(targetWidth, targetHeight) * 0.3,
+                                fontFamily: "Arial",
+                                fill: "#000000",
+                                align: "center",
+                                verticalAlign: "middle",
+                                offsetX: 0,
+                                offsetY: 0,
+                                name: "table-number-text",
+                                listening: false,
+                            });
+
+                            // Center the text properly
+                            tableNumberText.offsetX(
+                                tableNumberText.width() / 2
+                            );
+                            tableNumberText.offsetY(
+                                tableNumberText.height() / 2
                             );
 
-                            // Add both image and text to the group
-                            tableGroup.add(konvaImg);
-                            tableGroup.add(tableNumberText);
+                            // Add both Image and Text to Label
+                            tableLabel.add(konvaImg);
+                            tableLabel.add(tableNumberText);
 
-                            // Click to select - add event to both image and group
-                            tableGroup.on("click tap", function () {
-                                highlightImage(tableGroup);
+                            // Click to select - add event to label
+                            tableLabel.on("click tap", function () {
+                                highlightImage(tableLabel);
                                 // Update fields with current size
                                 if (customWidthInput)
                                     customWidthInput.value = Math.round(
@@ -708,53 +725,56 @@ window.initSeatmapKonva = function (containerId) {
                                     );
                                 if (customXInput)
                                     customXInput.value = Math.round(
-                                        tableGroup.x()
+                                        tableLabel.x()
                                     );
                                 if (customYInput)
                                     customYInput.value = Math.round(
-                                        tableGroup.y()
+                                        tableLabel.y()
                                     );
                             });
-                            // Group drag logic for multi-selected tables
+                            // Label drag logic for multi-selected tables
                             let dragStartPositions = null;
-                            tableGroup.on("dragstart", function (e) {
+                            tableLabel.on("dragstart", function (e) {
                                 if (
-                                    multiSelectedKonvaImgs.includes(tableGroup)
+                                    multiSelectedKonvaImgs.includes(tableLabel)
                                 ) {
                                     dragStartPositions =
-                                        multiSelectedKonvaImgs.map((img) => ({
-                                            img,
-                                            x: img.x(),
-                                            y: img.y(),
+                                        multiSelectedKonvaImgs.map((label) => ({
+                                            label,
+                                            x: label.x(),
+                                            y: label.y(),
                                         }));
                                 } else {
                                     dragStartPositions = null;
                                 }
                             });
-                            tableGroup.on("dragmove", function (e) {
+                            tableLabel.on("dragmove", function (e) {
                                 if (
                                     multiSelectedKonvaImgs.length > 1 &&
                                     multiSelectedKonvaImgs.includes(
-                                        tableGroup
+                                        tableLabel
                                     ) &&
                                     dragStartPositions
                                 ) {
-                                    const draggedImg = tableGroup;
+                                    const draggedLabel = tableLabel;
                                     const orig = dragStartPositions.find(
-                                        (d) => d.img === draggedImg
+                                        (d) => d.label === draggedLabel
                                     );
-                                    const dx = draggedImg.x() - orig.x;
-                                    const dy = draggedImg.y() - orig.y;
-                                    multiSelectedKonvaImgs.forEach((selImg) => {
-                                        if (selImg !== draggedImg) {
-                                            const origSel =
-                                                dragStartPositions.find(
-                                                    (d) => d.img === selImg
-                                                );
-                                            selImg.x(origSel.x + dx);
-                                            selImg.y(origSel.y + dy);
+                                    const dx = draggedLabel.x() - orig.x;
+                                    const dy = draggedLabel.y() - orig.y;
+                                    multiSelectedKonvaImgs.forEach(
+                                        (selLabel) => {
+                                            if (selLabel !== draggedLabel) {
+                                                const origSel =
+                                                    dragStartPositions.find(
+                                                        (d) =>
+                                                            d.label === selLabel
+                                                    );
+                                                selLabel.x(origSel.x + dx);
+                                                selLabel.y(origSel.y + dy);
+                                            }
                                         }
-                                    });
+                                    );
                                     layer.batchDraw();
                                     if (customXInput)
                                         customXInput.value = Math.round(
@@ -765,22 +785,24 @@ window.initSeatmapKonva = function (containerId) {
                                             multiSelectedKonvaImgs[0].y()
                                         );
                                 } else if (
-                                    window.selectedKonvaImg === tableGroup
+                                    window.selectedKonvaImg === tableLabel
                                 ) {
                                     if (customXInput)
                                         customXInput.value = Math.round(
-                                            tableGroup.x()
+                                            tableLabel.x()
                                         );
                                     if (customYInput)
                                         customYInput.value = Math.round(
-                                            tableGroup.y()
+                                            tableLabel.y()
                                         );
                                 }
                             });
-                            tableGroup.on("dragend", function (e) {
+                            tableLabel.on("dragend", function (e) {
                                 dragStartPositions = null;
                             });
-                            layer.add(tableGroup);
+
+                            // Add label to layer (contains both image and text)
+                            layer.add(tableLabel);
                             layer.draw();
                         };
                     })(i);
@@ -808,12 +830,12 @@ window.initSeatmapKonva = function (containerId) {
                             customHeightInput && customHeightInput.value
                                 ? parseInt(customHeightInput.value)
                                 : null;
-                        multiSelectedKonvaImgs.forEach((tableGroup) => {
-                            const image = tableGroup.findOne("Image");
+                        multiSelectedKonvaImgs.forEach((label) => {
+                            const image = label.getChildren()[0]; // First child is Image
                             if (w !== null && !isNaN(w)) image.width(w);
                             if (h !== null && !isNaN(h)) image.height(h);
                             // Update text label for each resized table
-                            updateTableNumberText(tableGroup);
+                            updateTableNumberText(label);
                         });
                         layer.draw();
                         // After update, re-run highlight to update input values (in case of mixed values)
@@ -848,9 +870,9 @@ window.initSeatmapKonva = function (containerId) {
                             customYInput && customYInput.value
                                 ? parseInt(customYInput.value)
                                 : null;
-                        multiSelectedKonvaImgs.forEach((tableGroup) => {
-                            if (x !== null && !isNaN(x)) tableGroup.x(x);
-                            if (y !== null && !isNaN(y)) tableGroup.y(y);
+                        multiSelectedKonvaImgs.forEach((label) => {
+                            if (x !== null && !isNaN(x)) label.x(x);
+                            if (y !== null && !isNaN(y)) label.y(y);
                         });
                         layer.draw();
                         // After update, re-run highlight to update input values (in case of mixed values)
