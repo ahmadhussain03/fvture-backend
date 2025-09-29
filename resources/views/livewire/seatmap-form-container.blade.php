@@ -137,6 +137,9 @@
 >
     <!-- Hidden field for full Club Table data -->
     <input type="hidden" name="club_tables_json" id="club_tables_json" value="{{ old('club_tables_json', $get('club_tables_json') ?? '') }}">
+    
+    <!-- Hidden field for seatmap tables data -->
+    <input type="hidden" name="seatmap_tables_json" id="seatmap_tables_json" value="{{ old('seatmap_tables_json', $get('seatmap_tables_json') ?? '') }}">
 
     <!-- Debug button removed, now updates in real time -->
     <!-- Debug labels removed -->
