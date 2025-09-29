@@ -10,30 +10,46 @@
                 // Find the image upload input or its parent container
                 const imageInput = document.querySelector('input.filepond--browser');
                 let maxWidth = 700;
+                
+                // Debug: Check what width is being calculated initially
+                console.log('=== WIDTH CALCULATION DEBUG ===');
+                console.log('Image input found:', !!imageInput);
+                console.log('Parent element width:', imageInput?.parentElement?.offsetWidth);
+                
+                // Fix 1 & 2: Only use FileUpload width, no section fallback
                 if (imageInput && imageInput.parentElement) {
                     // Use parent container's width for max width
                     maxWidth = imageInput.parentElement.offsetWidth;
+                    console.log('Using parent width:', maxWidth);
+                    
+                    this.maxComponentWidth = maxWidth;
+                    console.log('Final maxComponentWidth:', this.maxComponentWidth);
                 } else {
-                    // Fallback to form section/container width
-                    const section = document.querySelector('.fi-section');
-                    if (section) {
-                        maxWidth = section.offsetWidth;
-                    }
+                    // Fix 1: Wait for FileUpload to load - don't calculate width yet
+                    console.log('FileUpload not ready, skipping width calculation');
+                    return; // Exit early, don't set any width
                 }
-                this.maxComponentWidth = maxWidth;
 
                 const widthInput = document.getElementById('form.map_width');
                 const heightInput = document.getElementById('form.map_height');
+
+                // Debug: Check form input values
+                console.log('Width input found:', !!widthInput);
+                console.log('Width input value:', widthInput?.value);
+                console.log('Width input max before:', widthInput?.max);
 
                 if (widthInput) {
                     widthInput.max = this.maxComponentWidth;
                     // If input is empty, set to max width
                     if (!widthInput.value) {
                         widthInput.value = this.maxComponentWidth;
+                        console.log('Set width input to max width:', this.maxComponentWidth);
                     }
                     this.mapWidth = Math.min(parseInt(widthInput.value) || this.maxComponentWidth, this.maxComponentWidth);
+                    console.log('Final mapWidth:', this.mapWidth);
                 } else {
                     this.mapWidth = this.maxComponentWidth;
+                    console.log('No width input, using maxComponentWidth:', this.mapWidth);
                 }
                 if (heightInput) {
                     // If image aspect ratio is set, always use calculated height
@@ -47,6 +63,21 @@
                 }
             };
             update();
+
+            // Fix 1: Retry mechanism - keep checking for FileUpload to load
+            let retryCount = 0;
+            const maxRetries = 10;
+            const retryInterval = setInterval(() => {
+                const imageInput = document.querySelector('input.filepond--browser');
+                if (imageInput || retryCount >= maxRetries) {
+                    clearInterval(retryInterval);
+                    if (imageInput) {
+                        console.log('FileUpload found after retries, recalculating width');
+                        update();
+                    }
+                }
+                retryCount++;
+            }, 100); // Check every 100ms
 
             // Listen for input changes directly on the form inputs
             const widthInput = document.getElementById('form.map_width');
