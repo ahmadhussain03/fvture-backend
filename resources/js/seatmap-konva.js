@@ -113,7 +113,9 @@ window.initSeatmapKonva = function (containerId) {
         text.text(tableNumber.toString());
         text.x(image.width() / 2);
         text.y(image.height() / 2);
-        text.fontSize(Math.min(image.width(), image.height()) * 0.3);
+        text.fontSize(Math.min(image.width(), image.height()) * 0.4);
+        text.fontStyle("bold");
+        text.fill("#FFFFFF");
 
         // Center the text properly
         text.offsetX(text.width() / 2);
@@ -688,9 +690,10 @@ window.initSeatmapKonva = function (containerId) {
                                 x: targetWidth / 2,
                                 y: targetHeight / 2,
                                 fontSize:
-                                    Math.min(targetWidth, targetHeight) * 0.3,
+                                    Math.min(targetWidth, targetHeight) * 0.6,
                                 fontFamily: "Arial",
-                                fill: "#000000",
+                                fontStyle: "bold",
+                                fill: "#FFFFFF",
                                 align: "center",
                                 verticalAlign: "middle",
                                 offsetX: 0,
