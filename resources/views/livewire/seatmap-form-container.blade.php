@@ -29,6 +29,10 @@
                     // If input is empty, set to max width
                     if (!widthInput.value) {
                         widthInput.value = this.maxComponentWidth;
+                        // Trigger events so Filament recognizes this as valid user input
+                        widthInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        widthInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        widthInput.dispatchEvent(new Event('blur', { bubbles: true }));
                     }
                     this.mapWidth = Math.min(parseInt(widthInput.value) || this.maxComponentWidth, this.maxComponentWidth);
                 } else {
