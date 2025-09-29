@@ -161,12 +161,7 @@
                         container._konvaStage.height(height);
                         // Optionally, reposition/redraw objects here if needed
                         const layer = container._konvaStage.children[0];
-                        if (layer && layer.children && layer.children[0]) {
-                            // Center the circle again
-                            const circle = layer.children[0];
-                            circle.x(width/2);
-                            circle.y(height/2);
-                            circle.radius(Math.min(width, height) / 6);
+                        if (layer) {
                             layer.draw();
                         }
                     }
