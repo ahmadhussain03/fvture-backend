@@ -52,7 +52,7 @@ class SeatmapForm
                                     ->required()
                                     ->columnSpanFull(),
                                 ViewField::make('seatmap_preview')
-                                    ->view('livewire/seatmap-form-container')
+                                    ->view('livewire.seatmap-form-container')
                                     ->label('Seatmap Preview')
                                     ->columnSpanFull(),
                                 Grid::make(2)
@@ -69,7 +69,7 @@ class SeatmapForm
                                     ])
                                     ->columnSpanFull(),
                                 ViewField::make('place_table_button')
-                                    ->view('livewire/place-table-button')
+                                    ->view('livewire.place-table-button')
                                     ->label('')
                                     ->columnSpanFull(),
                             ]),
