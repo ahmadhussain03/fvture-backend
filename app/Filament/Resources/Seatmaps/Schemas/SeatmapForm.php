@@ -2,16 +2,14 @@
 
 namespace App\Filament\Resources\Seatmaps\Schemas;
 
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\ViewField;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class SeatmapForm
 {
@@ -25,7 +23,7 @@ class SeatmapForm
                             ->schema([
                                 Hidden::make('seatmap_tables_json'),
                                 Hidden::make('club_tables_json')
-                                    ->default(fn() => json_encode(\App\Models\ClubTable::all()->toArray())),
+                                    ->default(fn () => json_encode(\App\Models\ClubTable::all()->toArray())),
                                 TextInput::make('name')
                                     ->label('Seatmap Name')
                                     ->required(),
@@ -47,7 +45,7 @@ class SeatmapForm
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
                                     ->maxSize(5120) // 5MB max
                                     ->getUploadedFileNameForStorageUsing(
-                                        fn (string $file): string => (string) str($file)->prepend(time() . '-')
+                                        fn (string $file): string => (string) str($file)->prepend(time().'-')
                                     )
                                     ->moveFiles()
                                     ->helperText('Upload a background image for this seatmap (Max 5MB)')
@@ -61,7 +59,7 @@ class SeatmapForm
                                     ->schema([
                                         Select::make('club_table_id')
                                             ->label('Select Club Table')
-                                            ->options(fn() => \App\Models\ClubTable::all()->pluck('name', 'id'))
+                                            ->options(fn () => \App\Models\ClubTable::all()->pluck('name', 'id'))
                                             ->searchable(),
                                         TextInput::make('number_of_tables')
                                             ->label('Number of Tables')
@@ -76,28 +74,28 @@ class SeatmapForm
                                     ->columnSpanFull(),
                             ]),
                         // Add custom width/height fields at the bottom, styled as Filament fields
-                            Grid::make(2)
-                                ->schema([
-                                    TextInput::make('custom_table_width')
-                                        ->label('Table Width')
-                                        ->numeric()
-                                        ->minValue(1),
-                                    TextInput::make('custom_table_height')
-                                        ->label('Table Height')
-                                        ->numeric()
-                                        ->minValue(1),
-                                ])
-                                ->columnSpanFull(),
-                            Grid::make(2)
-                                ->schema([
-                                    TextInput::make('custom_table_x')
-                                        ->label('Table Position X')
-                                        ->numeric(),
-                                    TextInput::make('custom_table_y')
-                                        ->label('Table Position Y')
-                                        ->numeric(),
-                                ])
-                                ->columnSpanFull(),
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('custom_table_width')
+                                    ->label('Table Width')
+                                    ->numeric()
+                                    ->minValue(1),
+                                TextInput::make('custom_table_height')
+                                    ->label('Table Height')
+                                    ->numeric()
+                                    ->minValue(1),
+                            ])
+                            ->columnSpanFull(),
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('custom_table_x')
+                                    ->label('Table Position X')
+                                    ->numeric(),
+                                TextInput::make('custom_table_y')
+                                    ->label('Table Position Y')
+                                    ->numeric(),
+                            ])
+                            ->columnSpanFull(),
                     ])
                     ->columns(1)
                     ->columnSpanFull(),
