@@ -27,6 +27,15 @@ class CreateSeatmap extends CreateRecord
         // Extract and decode table data from hidden field
         $tablesJson = $data['seatmap_tables_json'] ?? '[]';
         $tables = json_decode($tablesJson, true) ?: [];
+        
+        // Debug with dd() - this will stop execution and show the data
+        dd([
+            'form_data' => $data,
+            'tables_json' => $tablesJson,
+            'decoded_tables' => $tables,
+            'table_count' => count($tables)
+        ]);
+        
         unset($data['seatmap_tables_json']);
 
         return \DB::transaction(function () use ($data, $tables) {

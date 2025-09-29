@@ -17,9 +17,38 @@ window.initSeatmapKonva = function (containerId) {
                 height: img.height(),
                 number: img.attrs.seat_number || null,
             }));
-        const hiddenField = document.getElementById("form.seatmap_tables_json");
+
+        // Console log the tables data
+        console.log("[Konva] Serializing tables to JSON:", tables);
+        console.log("[Konva] Number of tables found:", tables.length);
+
+        // Try multiple selectors to find the hidden field
+        let hiddenField =
+            document.getElementById("form.seatmap_tables_json") ||
+            document.querySelector('input[name="seatmap_tables_json"]') ||
+            document.querySelector(
+                'input[data-field-name="seatmap_tables_json"]'
+            );
+
         if (hiddenField) {
-            hiddenField.value = JSON.stringify(tables);
+            const jsonData = JSON.stringify(tables);
+            hiddenField.value = jsonData;
+
+            // Trigger Livewire update for wire:model binding
+            hiddenField.dispatchEvent(new Event("input", { bubbles: true }));
+            hiddenField.dispatchEvent(new Event("change", { bubbles: true }));
+
+            console.log("[Konva] JSON data stored in hidden field:", jsonData);
+            console.log("[Konva] Hidden field found:", hiddenField);
+            console.log("[Konva] Livewire events dispatched");
+        } else {
+            console.warn(
+                "[Konva] Hidden field 'seatmap_tables_json' not found!"
+            );
+            console.log(
+                "[Konva] Available input fields:",
+                document.querySelectorAll('input[type="hidden"]')
+            );
         }
     }
     window.serializeTablesToJson = serializeTablesToJson;
@@ -28,7 +57,11 @@ window.initSeatmapKonva = function (containerId) {
     document.addEventListener(
         "submit",
         function (e) {
+            console.log("[Konva] Form submission intercepted for debugging");
             serializeTablesToJson();
+
+            // Allow form submission to proceed
+            console.log("[Konva] Form submission proceeding - check PHP logs");
         },
         true
     );
@@ -471,6 +504,11 @@ window.initSeatmapKonva = function (containerId) {
                 );
             }
 
+            // Debug logging
+            console.log("[Konva] Selected value from dropdown:", selectedValue);
+            console.log("[Konva] Club tables data:", clubTables);
+            console.log("[Konva] Selected club table:", selectedClubTable);
+
             // Get number of tables from input
             const numTablesInput = document.getElementById(
                 "form.number_of_tables"
@@ -554,6 +592,12 @@ window.initSeatmapKonva = function (containerId) {
                             width: targetWidth,
                             height: targetHeight,
                             draggable: true,
+                            attrs: {
+                                club_table_id: selectedClubTable
+                                    ? selectedClubTable.id
+                                    : null,
+                                seat_number: null, // Can be set later if needed
+                            },
                         });
                         // Click to select
                         konvaImg.on("click tap", function () {
